@@ -26,7 +26,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     # Comma-separated list of allowed origins.
-    CORS_ORIGINS: str = "http://localhost:3000"
+    CORS_ORIGINS: str = "*"
+    # CORS_ORIGINS: str = "http://localhost:3000"
 
     # --- LLM ---
     LLM_PROVIDER: str = "anthropic"  # anthropic | openai | gemini | mock
