@@ -18,19 +18,24 @@ from app.schemas.auth import TokenOut
 
 async def signup(
     db: AsyncSession, agent: Agent, *, email: str, password: str
-) -> tuple[User, TokenOut]:
+) -> tuple[User, TokenOut, bool]:
     existing = await user_repo.get_user_by_email_and_agent(db, email, agent.id)
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="An account with this email already exists for this agent.",
-        )
+        # Idempotent signup: the same email + correct password logs the caller
+        # in and hands back a token (no 409). A wrong password means someone is
+        # trying to (re)claim an address they don't own, so it still conflicts.
+        if not verify_password(password, existing.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An account with this email already exists for this agent.",
+            )
+        return existing, _issue_token(existing, agent), False
     user = await user_repo.create_user(
         db, email=email, password_hash=hash_password(password), agent_id=agent.id
     )
     await db.commit()
     await db.refresh(user)
-    return user, _issue_token(user, agent)
+    return user, _issue_token(user, agent), True
 
 
 async def login(

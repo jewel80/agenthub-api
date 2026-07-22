@@ -6,7 +6,7 @@ An account created under Agent A does NOT exist under Agent B.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
@@ -36,12 +36,17 @@ async def _resolve_main_agent(slug: str, db: AsyncSession) -> Agent:
 async def signup(
     agent_slug: str,
     payload: SignupIn,
+    response: Response,
     db: AsyncSession = Depends(get_db),
 ):
     agent = await _resolve_main_agent(agent_slug, db)
-    _, token = await auth_service.signup(
+    _, token, created = await auth_service.signup(
         db, agent, email=payload.email, password=payload.password
     )
+    # Idempotent: an existing account with the correct password gets a token as
+    # a login (200 OK), not a fresh creation (201 Created).
+    if not created:
+        response.status_code = status.HTTP_200_OK
     return token
 
 

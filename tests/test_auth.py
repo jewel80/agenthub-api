@@ -67,14 +67,31 @@ async def test_same_email_can_register_per_agent(client, seeded):
     assert a.json()["access_token"] != b.json()["access_token"]
 
 
-async def test_duplicate_signup_same_agent_conflict(client, seeded):
+async def test_duplicate_signup_same_agent_is_idempotent(client, seeded):
+    """Re-signing up with the same email + correct password logs you in (200)."""
+    first = await client.post(
+        "/agents/doctor-physician/signup",
+        json={"email": EMAIL, "password": PASSWORD},
+    )
+    assert first.status_code == 201, first.text
+    second = await client.post(
+        "/agents/doctor-physician/signup",
+        json={"email": EMAIL, "password": PASSWORD},
+    )
+    assert second.status_code == 200, second.text
+    assert second.json()["access_token"]
+    assert second.json()["agent_slug"] == "doctor-physician"
+
+
+async def test_duplicate_signup_wrong_password_conflict(client, seeded):
+    """An existing email with the wrong password still conflicts (can't reclaim)."""
     await client.post(
         "/agents/doctor-physician/signup",
         json={"email": EMAIL, "password": PASSWORD},
     )
     r = await client.post(
         "/agents/doctor-physician/signup",
-        json={"email": EMAIL, "password": PASSWORD},
+        json={"email": EMAIL, "password": "wrong-password"},
     )
     assert r.status_code == 409, r.text
 
