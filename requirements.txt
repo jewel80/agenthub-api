@@ -1,0 +1,21 @@
+# AgentHub API — Python dependencies
+# Pinned floors for reproducibility; tested on Python 3.13/3.14.
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+email-validator>=2.2.0  # required by pydantic EmailStr
+pydantic-settings>=2.6.0
+sqlalchemy[asyncio]>=2.0.36
+asyncpg>=0.30.0          # Postgres async driver (Supabase)
+aiosqlite>=0.20.0        # SQLite async driver (local dev / tests)
+alembic>=1.14.0          # DB migrations
+pyjwt>=2.9.0             # JWT
+argon2-cffi>=23.1.0      # password hashing (argon2id)
+python-multipart>=0.0.12 # form parsing (OAuth2 scheme)
+tzdata>=2024.2           # IANA tz data (zoneinfo on Windows) for Alembic
+anthropic>=0.40.0        # LLM provider (primary)
+httpx>=0.27.0            # async test client + HTTP
+
+# --- dev / test ---
+pytest>=8.3.0
+pytest-asyncio>=0.24.0

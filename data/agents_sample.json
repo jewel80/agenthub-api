@@ -1,0 +1,2902 @@
+[
+  {
+    "num": 1,
+    "industry": "Accounting",
+    "profession": "Financial Controller",
+    "tasks": [
+      "Intelligent Oversee accounting operations",
+      "Prepare financial statements Analytics",
+      "Compliance Tracking",
+      "Financial Controller Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Reconciliation Agent",
+        "task": "Automate and assist with oversee accounting operations using AI-powered finance and accounting tools"
+      },
+      {
+        "name": "Excel Agent",
+        "task": "Provide intelligent recommendations and insights for prepare financial statements"
+      },
+      {
+        "name": "Invoice Processing Agent",
+        "task": "Monitor, track and report on implement internal controls with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Finance and Accounting for Financial Controllers"
+      }
+    ]
+  },
+  {
+    "num": 2,
+    "industry": "Accounting & Audit",
+    "profession": "Chartered Accountant",
+    "tasks": [
+      "Maintain Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Chartered Accountant Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Chartered Accountant Assistant Agent",
+        "task": "AI-powered tool for maintain accounting & audit financial records and accounts with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for prepare financial statements and reports with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on process invoices and payments with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Accounting & Audit for Chartered Accountants"
+      }
+    ]
+  },
+  {
+    "num": 3,
+    "industry": "Banking",
+    "profession": "Relationship Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Relationship Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Banking Dashboard Agent",
+        "task": "AI-powered tool for manage banking client relationships with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for identify cross-selling opportunities with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on handle customer queries and complaints with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Banking for Relationship Managers"
+      }
+    ]
+  },
+  {
+    "num": 4,
+    "industry": "Microfinance",
+    "profession": "Loan Officer",
+    "tasks": [
+      "Task Automation & Tracking",
+      "Documentation Assistance",
+      "Compliance Monitoring",
+      "Loan Officer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Task Automation Agent",
+        "task": "AI-powered tool for process microfinance loan applications with automated analysis and recommendations"
+      },
+      {
+        "name": "Document Helper Agent",
+        "task": "Intelligent assistance for evaluate borrower eligibility with smart suggestions and references"
+      },
+      {
+        "name": "Compliance Agent",
+        "task": "Track, monitor, and report on conduct field verification visits with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Microfinance for Loan Officers"
+      }
+    ]
+  },
+  {
+    "num": 5,
+    "industry": "Asset Management",
+    "profession": "Portfolio Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Portfolio Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Asset Managemen Dashboard Agent",
+        "task": "AI-powered tool for manage asset management investment portfolios with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for make asset allocation decisions with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on monitor portfolio risk and returns with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Asset Management for Portfolio Managers"
+      }
+    ]
+  },
+  {
+    "num": 6,
+    "industry": "Capital Markets",
+    "profession": "Stock Broker",
+    "tasks": [
+      "Sales Pipeline Management",
+      "Client Communication Drafting",
+      "Target & Performance Tracking",
+      "Stock Broker Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Market Terminal Agent",
+        "task": "AI-powered tool for execute buy/sell orders for clients with automated analysis and recommendations"
+      },
+      {
+        "name": "Trade Analyzer Agent",
+        "task": "Intelligent assistance for analyze stock market trends with smart suggestions and references"
+      },
+      {
+        "name": "Portfolio Tracker Agent",
+        "task": "Track, monitor, and report on advise clients on investment decisions with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Capital Markets for Stock Brokers"
+      }
+    ]
+  },
+  {
+    "num": 7,
+    "industry": "FinTech",
+    "profession": "Product Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Product Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "FinTech Dashboard Agent",
+        "task": "AI-powered tool for define fintech product strategy and roadmap with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for manage product development lifecycle with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on gather and prioritize product requirements with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about FinTech for Product Managers"
+      }
+    ]
+  },
+  {
+    "num": 8,
+    "industry": "Insurance",
+    "profession": "Underwriter",
+    "tasks": [
+      "Research & Fact-Checking",
+      "Content Editing Assistance",
+      "Publishing Workflow Tracking",
+      "Underwriter Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Writing Assistant Agent",
+        "task": "AI-powered tool for evaluate insurance insurance risks with automated analysis and recommendations"
+      },
+      {
+        "name": "Research Agent",
+        "task": "Intelligent assistance for determine policy terms and premiums with smart suggestions and references"
+      },
+      {
+        "name": "Editorial Agent",
+        "task": "Track, monitor, and report on review applications and documentation with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Insurance for Underwriters"
+      }
+    ]
+  },
+  {
+    "num": 9,
+    "industry": "Claims",
+    "profession": "Claims Investigator",
+    "tasks": [
+      "Investigate insurance claims Automation",
+      "Gather claim evidence Assistance",
+      "Performance Reporting",
+      "Claims Investigator Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Investigation Agent",
+        "task": "Automate and assist with investigate insurance claims using AI-powered insurance claims processing tools"
+      },
+      {
+        "name": "Document Verifier Agent",
+        "task": "Provide intelligent recommendations and insights for gather claim evidence"
+      },
+      {
+        "name": "Casualty Calculator Agent",
+        "task": "Monitor, track and report on interview claimants and witnesses with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Insurance Claims and Loss Adjustment for Claims Investigators"
+      }
+    ]
+  },
+  {
+    "num": 10,
+    "industry": "Wholesale Trade",
+    "profession": "Distribution Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Distribution Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Wholesale Trade Dashboard Agent",
+        "task": "AI-powered tool for manage wholesale trade distribution network with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for optimize delivery routes and coverage with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on coordinate with distributors and dealers with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Wholesale Trade for Distribution Managers"
+      }
+    ]
+  },
+  {
+    "num": 11,
+    "industry": "Advertising",
+    "profession": "Creative Director",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Creative Director Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Creative Dashboard Agent",
+        "task": "AI-powered tool for direct advertising creative productions with automated analysis and recommendations"
+      },
+      {
+        "name": "Project Planner Agent",
+        "task": "Intelligent assistance for manage creative vision and execution with smart suggestions and references"
+      },
+      {
+        "name": "Performance Agent",
+        "task": "Track, monitor, and report on lead production teams and talent with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Advertising for Creative Directors"
+      }
+    ]
+  },
+  {
+    "num": 12,
+    "industry": "Digital Marketing",
+    "profession": "Social Media Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Social Media Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Digital Marketi Dashboard Agent",
+        "task": "AI-powered tool for manage digital marketing social media channels with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for create and schedule social media content with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on engage with followers and communities with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Digital Marketing for Social Media Managers"
+      }
+    ]
+  },
+  {
+    "num": 13,
+    "industry": "Public Relations",
+    "profession": "PR Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "PR Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Public Relation Dashboard Agent",
+        "task": "AI-powered tool for manage public relations public relations strategy with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for draft press releases and media statements with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on coordinate media events and interviews with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Public Relations for PR Managers"
+      }
+    ]
+  },
+  {
+    "num": 14,
+    "industry": "Media & Broadcasting",
+    "profession": "Journalist",
+    "tasks": [
+      "Research & Fact-Checking",
+      "Content Editing Assistance",
+      "Publishing Workflow Tracking",
+      "Journalist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Research Agent",
+        "task": "AI-powered tool for research and write media & broadcasting news stories with automated analysis and recommendations"
+      },
+      {
+        "name": "Fact-Checker Agent",
+        "task": "Intelligent assistance for conduct interviews and investigations with smart suggestions and references"
+      },
+      {
+        "name": "Publishing Agent",
+        "task": "Track, monitor, and report on edit and produce media content with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Media & Broadcasting for Journalists"
+      }
+    ]
+  },
+  {
+    "num": 15,
+    "industry": "Publishing",
+    "profession": "Editor",
+    "tasks": [
+      "Research & Fact-Checking",
+      "Content Editing Assistance",
+      "Publishing Workflow Tracking",
+      "Editor Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Editorial Assistant Agent",
+        "task": "AI-powered tool for edit publishing content for quality and style with automated analysis and recommendations"
+      },
+      {
+        "name": "Fact-Checker Agent",
+        "task": "Intelligent assistance for review manuscripts and publications with smart suggestions and references"
+      },
+      {
+        "name": "Publishing Agent",
+        "task": "Track, monitor, and report on coordinate with writers and designers with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Publishing for Editors"
+      }
+    ]
+  },
+  {
+    "num": 16,
+    "industry": "Film Industry",
+    "profession": "Director",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Director Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Creative Dashboard Agent",
+        "task": "AI-powered tool for direct film industry creative productions with automated analysis and recommendations"
+      },
+      {
+        "name": "Project Planner Agent",
+        "task": "Intelligent assistance for manage creative vision and execution with smart suggestions and references"
+      },
+      {
+        "name": "Performance Agent",
+        "task": "Track, monitor, and report on lead production teams and talent with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Film Industry for Directors"
+      }
+    ]
+  },
+  {
+    "num": 17,
+    "industry": "Event Management",
+    "profession": "Event Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Event Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Event Managemen Dashboard Agent",
+        "task": "AI-powered tool for plan and execute event management events with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for coordinate vendors and logistics with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on manage event budgets and timelines with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Event Management for Event Managers"
+      }
+    ]
+  },
+  {
+    "num": 18,
+    "industry": "Market Research",
+    "profession": "Market Analyst",
+    "tasks": [
+      "Survey Design & Analysis",
+      "Market Trend Identification",
+      "Research Report Generation",
+      "Market Research Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Survey Analyzer Agent",
+        "task": "Design survey questionnaires, analyze response data, and generate statistical summaries"
+      },
+      {
+        "name": "Trend Spotter Agent",
+        "task": "Identify emerging market trends, consumer shifts, and competitive dynamics using AI"
+      },
+      {
+        "name": "Report Generator Agent",
+        "task": "Auto-generate market research reports with charts, insights, and strategic recommendations"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Market Research Methods, Data Analytics, and Consumer Behavior"
+      }
+    ]
+  },
+  {
+    "num": 19,
+    "industry": "Management Consulting",
+    "profession": "Consultant",
+    "tasks": [
+      "Expert Knowledge Reference",
+      "Advisory & Recommendation",
+      "Report Drafting Assistance",
+      "Consultant Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Research Compiler Agent",
+        "task": "AI-powered tool for advise clients on management consulting strategies with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for conduct research and analysis with smart suggestions and references"
+      },
+      {
+        "name": "Report Drafter Agent",
+        "task": "Track, monitor, and report on prepare consulting reports and presentations with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Management Consulting for Consultants"
+      }
+    ]
+  },
+  {
+    "num": 20,
+    "industry": "Research & Development",
+    "profession": "Research Scientist",
+    "tasks": [
+      "Data Analysis & Insights",
+      "Research Assistance",
+      "Report Generation",
+      "Research Scientist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Research Assistant Agent",
+        "task": "AI-powered tool for conduct research & development research and analysis with automated analysis and recommendations"
+      },
+      {
+        "name": "Literature Agent",
+        "task": "Intelligent assistance for design experiments and methodologies with smart suggestions and references"
+      },
+      {
+        "name": "Lab Data Agent",
+        "task": "Track, monitor, and report on collect and analyze research data with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Research & Development for Research Scientists"
+      }
+    ]
+  },
+  {
+    "num": 21,
+    "industry": "KPO",
+    "profession": "Research Analyst",
+    "tasks": [
+      "Conduct research analysis Automation",
+      "Gather research data Assistance",
+      "Performance Reporting",
+      "Research Analyst Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Research Agent",
+        "task": "Automate and assist with conduct research analysis using AI-powered knowledge process outsourcing tools"
+      },
+      {
+        "name": "Analytics Dashboard Agent",
+        "task": "Provide intelligent recommendations and insights for gather research data"
+      },
+      {
+        "name": "Compliance Agent",
+        "task": "Monitor, track and report on analyze research findings with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Knowledge Process Outsourcing and Analytics for Research Analysts"
+      }
+    ]
+  },
+  {
+    "num": 22,
+    "industry": "Artificial Intelligence",
+    "profession": "AI Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "AI Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for build and deploy ai/ml models for artificial intelligence with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for design model architectures and pipelines with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on train and optimize machine learning models with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Artificial Intelligence for AI Engineers"
+      }
+    ]
+  },
+  {
+    "num": 23,
+    "industry": "Data Analytics",
+    "profession": "Data Scientist",
+    "tasks": [
+      "Data Analysis & Insights",
+      "Research Assistance",
+      "Report Generation",
+      "Data Scientist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Research Assistant Agent",
+        "task": "AI-powered tool for build predictive models for data analytics with automated analysis and recommendations"
+      },
+      {
+        "name": "Literature Agent",
+        "task": "Intelligent assistance for analyze complex data sets with ml algorithms with smart suggestions and references"
+      },
+      {
+        "name": "Lab Data Agent",
+        "task": "Track, monitor, and report on design experiments and a/b tests with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Data Analytics for Data Scientists"
+      }
+    ]
+  },
+  {
+    "num": 24,
+    "industry": "Cybersecurity",
+    "profession": "Security Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Security Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design security solutions for cybersecurity with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for implement firewalls and intrusion detection with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on develop security policies and procedures with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Cybersecurity for Security Engineers"
+      }
+    ]
+  },
+  {
+    "num": 25,
+    "industry": "Software Development",
+    "profession": "Software Developer",
+    "tasks": [
+      "Develop Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Software Developer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Software Developer Assistant Agent",
+        "task": "AI-powered tool for develop software solutions for software development with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for write clean and maintainable code with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on review code and fix bugs with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Software Development for Software Developers"
+      }
+    ]
+  },
+  {
+    "num": 26,
+    "industry": "IT - Hardware",
+    "profession": "Hardware Technician",
+    "tasks": [
+      "Diagnose hardware problems Automation",
+      "Repair computer hardware Assistance",
+      "Performance Reporting",
+      "Hardware Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Diagnostic Agent",
+        "task": "Automate and assist with diagnose hardware problems using AI-powered IT hardware and computer repair tools"
+      },
+      {
+        "name": "Rack Layout Agent",
+        "task": "Provide intelligent recommendations and insights for repair computer hardware"
+      },
+      {
+        "name": "Screen Spec Agent",
+        "task": "Monitor, track and report on replace faulty components with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about IT Hardware and Computer Systems for Hardware Technicians"
+      }
+    ]
+  },
+  {
+    "num": 27,
+    "industry": "IT - Software Services",
+    "profession": "System Administrator",
+    "tasks": [
+      "Manage server systems Automation",
+      "Monitor system performance Assistance",
+      "Performance Reporting",
+      "System Administrator Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Server Monitor Agent",
+        "task": "Automate and assist with manage server systems using AI-powered software development and IT services tools"
+      },
+      {
+        "name": "Code Review Agent",
+        "task": "Provide intelligent recommendations and insights for monitor system performance"
+      },
+      {
+        "name": "Cloud Resource Agent",
+        "task": "Monitor, track and report on perform system backups with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Software Engineering and IT Services for System Administrators"
+      }
+    ]
+  },
+  {
+    "num": 28,
+    "industry": "Internet Service Providers",
+    "profession": "Systems Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Systems Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for maintain internet service providers it systems and infrastructure with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for provide technical support and troubleshooting with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on configure and deploy systems with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Internet Service Providers for Systems Engineers"
+      }
+    ]
+  },
+  {
+    "num": 29,
+    "industry": "EdTech",
+    "profession": "Instructional Designer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Instructional Designer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Concept Agent",
+        "task": "AI-powered tool for design edtech learning experiences and courses with automated analysis and recommendations"
+      },
+      {
+        "name": "Material Sourcer Agent",
+        "task": "Intelligent assistance for develop e-learning content and modules with smart suggestions and references"
+      },
+      {
+        "name": "Production Spec Agent",
+        "task": "Track, monitor, and report on apply instructional design frameworks with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about EdTech for Instructional Designers"
+      }
+    ]
+  },
+  {
+    "num": 30,
+    "industry": "Telecommunications",
+    "profession": "Network Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Network Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design and maintain telecommunications network infrastructure with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for monitor network performance and security with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on troubleshoot connectivity issues with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Telecommunications for Network Engineers"
+      }
+    ]
+  },
+  {
+    "num": 31,
+    "industry": "Education",
+    "profession": "Teacher",
+    "tasks": [
+      "Lesson & Content Creation",
+      "Assessment & Grading",
+      "Student/Trainee Analytics",
+      "Teacher Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Lesson Plan Agent",
+        "task": "AI-powered tool for prepare and deliver education lessons with automated analysis and recommendations"
+      },
+      {
+        "name": "Auto Grader Agent",
+        "task": "Intelligent assistance for design curriculum and assessments with smart suggestions and references"
+      },
+      {
+        "name": "Student Analytics Agent",
+        "task": "Track, monitor, and report on evaluate student performance with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Education for Teachers"
+      }
+    ]
+  },
+  {
+    "num": 32,
+    "industry": "Training & Skills Development",
+    "profession": "Trainer",
+    "tasks": [
+      "Lesson & Content Creation",
+      "Assessment & Grading",
+      "Student/Trainee Analytics",
+      "Trainer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Training Builder Agent",
+        "task": "AI-powered tool for design and deliver training & skills development training programs with automated analysis and recommendations"
+      },
+      {
+        "name": "Assessment Agent",
+        "task": "Intelligent assistance for assess training needs and skill gaps with smart suggestions and references"
+      },
+      {
+        "name": "Trainee Tracker Agent",
+        "task": "Track, monitor, and report on develop training materials and content with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Training & Skills Development for Trainers"
+      }
+    ]
+  },
+  {
+    "num": 33,
+    "industry": "Human Resources",
+    "profession": "HR Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "HR Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Human Resources Dashboard Agent",
+        "task": "AI-powered tool for manage human resources hr operations and strategy with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for oversee recruitment and talent management with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on handle employee relations and engagement with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Human Resources for HR Managers"
+      }
+    ]
+  },
+  {
+    "num": 34,
+    "industry": "Recruitment",
+    "profession": "Talent Acquisition Specialist",
+    "tasks": [
+      "Intelligent Recruit for open positions",
+      "Source and screen candidates Analytics",
+      "Compliance Tracking",
+      "Talent Acquisition Specialist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Pipeline Manager Agent",
+        "task": "Automate and assist with recruit for open positions using AI-powered talent acquisition and HR tools"
+      },
+      {
+        "name": "Resume Parser Agent",
+        "task": "Provide intelligent recommendations and insights for source and screen candidates"
+      },
+      {
+        "name": "Candidate Data Agent",
+        "task": "Monitor, track and report on conduct initial interviews with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Recruitment and Talent Acquisition for Talent Acquisition Specialists"
+      }
+    ]
+  },
+  {
+    "num": 35,
+    "industry": "Legal Services",
+    "profession": "Corporate Lawyer",
+    "tasks": [
+      "Contract Review Automation",
+      "Legal Research Assistance",
+      "Compliance Tracking",
+      "Corporate Law Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Contract Reviewer Agent",
+        "task": "Review contracts, highlight risk clauses, compare terms, and suggest amendments using AI"
+      },
+      {
+        "name": "Legal Research Agent",
+        "task": "Search case law, statutes, and legal precedents with AI-powered legal research tools"
+      },
+      {
+        "name": "Compliance Tracker Agent",
+        "task": "Track regulatory compliance deadlines, filing requirements, and legal obligations"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Corporate Law, M&A, Contract Law, and Legal Compliance"
+      }
+    ]
+  },
+  {
+    "num": 36,
+    "industry": "Government Services",
+    "profession": "Policy Analyst",
+    "tasks": [
+      "Data Analysis & Insights",
+      "Research Assistance",
+      "Report Generation",
+      "Policy Analyst Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Data Analyzer Agent",
+        "task": "AI-powered tool for analyze government services policies and regulations with automated analysis and recommendations"
+      },
+      {
+        "name": "Research Helper Agent",
+        "task": "Intelligent assistance for research policy options and impacts with smart suggestions and references"
+      },
+      {
+        "name": "Report Builder Agent",
+        "task": "Track, monitor, and report on draft policy briefs and recommendations with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Government Services for Policy Analysts"
+      }
+    ]
+  },
+  {
+    "num": 37,
+    "industry": "NGOs",
+    "profession": "Program Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Program Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "NGOs Dashboard Agent",
+        "task": "AI-powered tool for plan and manage ngos programs with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for monitor program implementation and impact with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on coordinate with stakeholders and partners with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about NGOs for Program Managers"
+      }
+    ]
+  },
+  {
+    "num": 38,
+    "industry": "Development Sector",
+    "profession": "Monitoring Specialist",
+    "tasks": [
+      "Expert Knowledge Reference",
+      "Advisory & Recommendation",
+      "Report Drafting Assistance",
+      "Monitoring Specialist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Expert Reference Agent",
+        "task": "AI-powered tool for monitor development sector program/project performance with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for collect and analyze m&e data with smart suggestions and references"
+      },
+      {
+        "name": "Documentation Agent",
+        "task": "Track, monitor, and report on prepare monitoring reports and dashboards with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Development Sector for Monitoring Specialists"
+      }
+    ]
+  },
+  {
+    "num": 39,
+    "industry": "Healthcare",
+    "profession": "Doctor / Physician",
+    "tasks": [
+      "Clinical Decision Support",
+      "Patient Record Management",
+      "Medical Literature Review",
+      "Medical & Clinical Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Clinical Advisor Agent",
+        "task": "Reference drug interactions, treatment protocols, and clinical guidelines for decision support"
+      },
+      {
+        "name": "Patient Record Agent",
+        "task": "Organize patient histories, test results, and treatment records with AI-powered EHR tools"
+      },
+      {
+        "name": "Literature Review Agent",
+        "task": "Search and summarize latest medical research, journal articles, and clinical trials"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Clinical Medicine, Pharmacology, and Medical Specializations"
+      }
+    ]
+  },
+  {
+    "num": 40,
+    "industry": "Healthcare / Nursing",
+    "profession": "Nurse",
+    "tasks": [
+      "Vital Signs Monitoring",
+      "Medication Schedule Management",
+      "Nursing Notes Automation",
+      "Nursing & Patient Care Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Vital Monitor Agent",
+        "task": "Track patient vitals, detect trends, and alert on critical value changes using AI"
+      },
+      {
+        "name": "Medication Scheduler Agent",
+        "task": "Manage medication schedules, dosage calculations, and drug interaction checks"
+      },
+      {
+        "name": "Nursing Notes Agent",
+        "task": "Auto-generate nursing notes, shift handover summaries, and patient care documentation"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Nursing Practice, Pharmacology, and Clinical Patient Care"
+      }
+    ]
+  },
+  {
+    "num": 41,
+    "industry": "Healthcare Administration",
+    "profession": "Hospital Administrator",
+    "tasks": [
+      "Operations Dashboard",
+      "Staff & Resource Planning",
+      "Regulatory Compliance Management",
+      "Healthcare Admin Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Hospital Dashboard Agent",
+        "task": "Centralized dashboard for bed occupancy, OPD/IPD stats, revenue, and operational KPIs"
+      },
+      {
+        "name": "Resource Planner Agent",
+        "task": "Plan staff rosters, shift schedules, equipment allocation, and department resource needs"
+      },
+      {
+        "name": "Compliance Manager Agent",
+        "task": "Track healthcare accreditation requirements, license renewals, and regulatory submissions"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Hospital Management, Healthcare Policy, and Medical Administration"
+      }
+    ]
+  },
+  {
+    "num": 42,
+    "industry": "Clinical Research",
+    "profession": "Clinical Research Coordinator",
+    "tasks": [
+      "Coordinate clinical trials Automation",
+      "Recruit trial participants Assistance",
+      "Performance Reporting",
+      "Clinical Research Coordinator Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Protocol Agent",
+        "task": "Automate and assist with coordinate clinical trials using AI-powered clinical research and trials tools"
+      },
+      {
+        "name": "Sample Tracker Agent",
+        "task": "Provide intelligent recommendations and insights for recruit trial participants"
+      },
+      {
+        "name": "Query Manager Agent",
+        "task": "Monitor, track and report on collect clinical data with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Clinical Research and Trial Management for Clinical Research Coordinators"
+      }
+    ]
+  },
+  {
+    "num": 43,
+    "industry": "Pharmaceuticals",
+    "profession": "Pharmacist",
+    "tasks": [
+      "Clinical Decision Support",
+      "Patient Record Management",
+      "Medical Reference",
+      "Pharmacist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Drug Reference Agent",
+        "task": "AI-powered tool for dispense medications and counsel patients with automated analysis and recommendations"
+      },
+      {
+        "name": "Inventory Agent",
+        "task": "Intelligent assistance for review prescriptions for interactions with smart suggestions and references"
+      },
+      {
+        "name": "Prescription Checker Agent",
+        "task": "Track, monitor, and report on manage pharmaceuticals drug inventory with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Pharmaceuticals for Pharmacists"
+      }
+    ]
+  },
+  {
+    "num": 44,
+    "industry": "Medical Devices",
+    "profession": "Biomedical Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Biomedical Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for maintain and calibrate medical equipment with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for install medical devices and systems with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on troubleshoot biomedical equipment faults with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Medical Devices for Biomedical Engineers"
+      }
+    ]
+  },
+  {
+    "num": 45,
+    "industry": "BioTech",
+    "profession": "Cell Culture Technician",
+    "tasks": [
+      "Maintain cell cultures Automation",
+      "Prepare culture media Assistance",
+      "Performance Reporting",
+      "Cell Culture Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Assay Guide Agent",
+        "task": "Automate and assist with maintain cell cultures using AI-powered biotechnology and life sciences tools"
+      },
+      {
+        "name": "Clean Room Agent",
+        "task": "Provide intelligent recommendations and insights for prepare culture media"
+      },
+      {
+        "name": "Cold Chain Agent",
+        "task": "Monitor, track and report on monitor cell growth with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Biotechnology and Life Sciences for Cell Culture Technicians"
+      }
+    ]
+  },
+  {
+    "num": 46,
+    "industry": "Rehabilitation",
+    "profession": "Physiotherapist",
+    "tasks": [
+      "Rehabilitation Program Design",
+      "Patient Progress Monitoring",
+      "Exercise Demonstration Library",
+      "Physiotherapy Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Rehab Program Agent",
+        "task": "Design personalized rehab programs based on diagnosis, pain levels, and recovery goals"
+      },
+      {
+        "name": "Progress Monitor Agent",
+        "task": "Track patient progress, range of motion improvements, pain scores, and milestone achievements"
+      },
+      {
+        "name": "Exercise Library Agent",
+        "task": "Access illustrated exercise instructions, sets/reps guidance, and progression protocols"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Physiotherapy, Rehabilitation, Anatomy, and Therapeutic Techniques"
+      }
+    ]
+  },
+  {
+    "num": 47,
+    "industry": "Fitness & Wellness",
+    "profession": "Fitness Trainer",
+    "tasks": [
+      "Lesson & Content Creation",
+      "Assessment & Grading",
+      "Student/Trainee Analytics",
+      "Fitness Trainer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Training Builder Agent",
+        "task": "AI-powered tool for design and deliver fitness & wellness training programs with automated analysis and recommendations"
+      },
+      {
+        "name": "Assessment Agent",
+        "task": "Intelligent assistance for assess training needs and skill gaps with smart suggestions and references"
+      },
+      {
+        "name": "Trainee Tracker Agent",
+        "task": "Track, monitor, and report on develop training materials and content with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Fitness & Wellness for Fitness Trainers"
+      }
+    ]
+  },
+  {
+    "num": 48,
+    "industry": "Spa",
+    "profession": "Spa Therapist",
+    "tasks": [
+      "Provide spa treatments Automation",
+      "Perform body massages Assistance",
+      "Performance Reporting",
+      "Spa Therapist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Treatment Menu Agent",
+        "task": "Automate and assist with provide spa treatments using AI-powered spa and beauty therapy tools"
+      },
+      {
+        "name": "Body Wrap Agent",
+        "task": "Provide intelligent recommendations and insights for perform body massages"
+      },
+      {
+        "name": "Wax Guide Agent",
+        "task": "Monitor, track and report on apply spa therapies with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Spa Services and Beauty Therapy for Spa Therapists"
+      }
+    ]
+  },
+  {
+    "num": 49,
+    "industry": "Salon",
+    "profession": "Hair Stylist",
+    "tasks": [
+      "Cut and style hair Automation",
+      "Consult with clients Assistance",
+      "Performance Reporting",
+      "Hair Stylist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Style Guide Agent",
+        "task": "Automate and assist with cut and style hair using AI-powered beauty salon and grooming tools"
+      },
+      {
+        "name": "Product Recommender Agent",
+        "task": "Provide intelligent recommendations and insights for consult with clients"
+      },
+      {
+        "name": "Facial Protocol Agent",
+        "task": "Monitor, track and report on apply hair treatments with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Beauty and Salon Services for Hair Stylists"
+      }
+    ]
+  },
+  {
+    "num": 50,
+    "industry": "Cosmetics Manufacturing",
+    "profession": "Product Developer",
+    "tasks": [
+      "Develop Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Product Developer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Product Developer Assistant Agent",
+        "task": "AI-powered tool for develop new cosmetics manufacturing products and formulations with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for conduct product testing and trials with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on coordinate with production teams with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Cosmetics Manufacturing for Product Developers"
+      }
+    ]
+  },
+  {
+    "num": 51,
+    "industry": "Hospitality",
+    "profession": "Hotel Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Hotel Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Hospitality Dashboard Agent",
+        "task": "AI-powered tool for manage overall hotel operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for ensure guest satisfaction and service quality with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on optimize room occupancy and revenue with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Hospitality for Hotel Managers"
+      }
+    ]
+  },
+  {
+    "num": 52,
+    "industry": "Restaurants",
+    "profession": "Chef",
+    "tasks": [
+      "Recipe & Menu Planning",
+      "Kitchen Inventory Management",
+      "Food Safety Compliance",
+      "Chef Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Recipe Planner Agent",
+        "task": "AI-powered tool for prepare meals for restaurants guests with automated analysis and recommendations"
+      },
+      {
+        "name": "Inventory Agent",
+        "task": "Intelligent assistance for plan menus and develop recipes with smart suggestions and references"
+      },
+      {
+        "name": "Food Safety Agent",
+        "task": "Track, monitor, and report on manage kitchen operations and staff with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Restaurants for Chefs"
+      }
+    ]
+  },
+  {
+    "num": 53,
+    "industry": "Travel",
+    "profession": "Travel Consultant",
+    "tasks": [
+      "Advise on travel options Optimization",
+      "Smart Plan travel itineraries",
+      "Quality Monitoring",
+      "Travel Consultant Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Itinerary Builder Agent",
+        "task": "Automate and assist with advise on travel options using AI-powered travel and tourism tools"
+      },
+      {
+        "name": "Package Builder Agent",
+        "task": "Provide intelligent recommendations and insights for plan travel itineraries"
+      },
+      {
+        "name": "Attraction Guide Agent",
+        "task": "Monitor, track and report on recommend destinations with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Travel Industry and Tourism Management for Travel Consultants"
+      }
+    ]
+  },
+  {
+    "num": 54,
+    "industry": "Real Estate",
+    "profession": "Real Estate Developer",
+    "tasks": [
+      "Site Feasibility Analysis",
+      "Project Budget Tracking",
+      "Property Marketing Assistance",
+      "Real Estate Development Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Feasibility Analyzer Agent",
+        "task": "Analyze site potential, zoning regulations, market demand, and ROI projections using AI"
+      },
+      {
+        "name": "Budget Tracker Agent",
+        "task": "Track construction budgets, cost overruns, payment schedules, and cash flow forecasts"
+      },
+      {
+        "name": "Marketing Assistant Agent",
+        "task": "Generate property listings, marketing brochures, and promotional content with AI"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Real Estate Development, Property Law, and Construction Finance"
+      }
+    ]
+  },
+  {
+    "num": 55,
+    "industry": "Construction",
+    "profession": "Civil Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Civil Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design structural plans for construction projects with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for supervise construction and civil works with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on perform structural and load calculations with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Construction for Civil Engineers"
+      }
+    ]
+  },
+  {
+    "num": 56,
+    "industry": "Architecture",
+    "profession": "Architect",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Architect Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Calculator Agent",
+        "task": "AI-powered tool for design architecture buildings and structures with automated analysis and recommendations"
+      },
+      {
+        "name": "Code Reference Agent",
+        "task": "Intelligent assistance for create architectural drawings and models with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on supervise construction projects with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Architecture for Architects"
+      }
+    ]
+  },
+  {
+    "num": 57,
+    "industry": "Interior Design",
+    "profession": "Interior Designer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Interior Designer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Concept Agent",
+        "task": "AI-powered tool for design interior spaces for interior design projects with automated analysis and recommendations"
+      },
+      {
+        "name": "Material Sourcer Agent",
+        "task": "Intelligent assistance for create mood boards and design concepts with smart suggestions and references"
+      },
+      {
+        "name": "Production Spec Agent",
+        "task": "Track, monitor, and report on select materials, furniture, and finishes with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Interior Design for Interior Designers"
+      }
+    ]
+  },
+  {
+    "num": 58,
+    "industry": "Air Conditioning",
+    "profession": "AC Technician",
+    "tasks": [
+      "Diagnose AC malfunctions Automation",
+      "Repair and replace components Assistance",
+      "Performance Reporting",
+      "AC Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Diagnostic Agent",
+        "task": "Automate and assist with diagnose ac malfunctions using AI-powered HVAC and cooling systems tools"
+      },
+      {
+        "name": "Parts Catalog Agent",
+        "task": "Provide intelligent recommendations and insights for repair and replace components"
+      },
+      {
+        "name": "Pressure Calculator Agent",
+        "task": "Monitor, track and report on perform routine maintenance with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about HVAC and Air Conditioning for AC Technicians"
+      }
+    ]
+  },
+  {
+    "num": 59,
+    "industry": "Elevators",
+    "profession": "Elevator Installer",
+    "tasks": [
+      "Install elevator car and machinery Automation",
+      "Connect electrical systems Assistance",
+      "Performance Reporting",
+      "Elevator Installer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Installation Checklist Agent",
+        "task": "Automate and assist with install elevator car and machinery using AI-powered elevator installation and maintenance tools"
+      },
+      {
+        "name": "Door Timing Agent",
+        "task": "Provide intelligent recommendations and insights for connect electrical systems"
+      },
+      {
+        "name": "Hoistway Spec Agent",
+        "task": "Monitor, track and report on install guide rails and cables with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Elevator Engineering and Safety for Elevator Installers"
+      }
+    ]
+  },
+  {
+    "num": 60,
+    "industry": "Automobile",
+    "profession": "Automotive Technician",
+    "tasks": [
+      "Fault Diagnosis & Troubleshooting",
+      "Technical Manual Reference",
+      "Maintenance Log Management",
+      "Automotive Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Diagnostic Agent",
+        "task": "AI-powered tool for diagnose vehicle mechanical and electrical faults with automated analysis and recommendations"
+      },
+      {
+        "name": "Manual Reference Agent",
+        "task": "Intelligent assistance for perform vehicle repairs and servicing with smart suggestions and references"
+      },
+      {
+        "name": "Service Log Agent",
+        "task": "Track, monitor, and report on use diagnostic tools and equipment with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Automobile for Automotive Technicians"
+      }
+    ]
+  },
+  {
+    "num": 61,
+    "industry": "Aerospace",
+    "profession": "Aircraft Structural Repair Technician",
+    "tasks": [
+      "Repair aircraft structures Optimization",
+      "Smart Assess structural damage",
+      "Quality Monitoring",
+      "Aircraft Structural Repair Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Calibration Agent",
+        "task": "Automate and assist with repair aircraft structures using AI-powered aerospace manufacturing and maintenance tools"
+      },
+      {
+        "name": "Tool Tracker Agent",
+        "task": "Provide intelligent recommendations and insights for assess structural damage"
+      },
+      {
+        "name": "Assembly Procedure Agent",
+        "task": "Monitor, track and report on fabricate repair parts with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Aerospace Engineering and Manufacturing for Aircraft Structural Repair Technicians"
+      }
+    ]
+  },
+  {
+    "num": 62,
+    "industry": "Airlines",
+    "profession": "Pilot",
+    "tasks": [
+      "Flight Planning Assistance",
+      "Safety Checklist Reference",
+      "Documentation Automation",
+      "Pilot Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Flight Planner Agent",
+        "task": "AI-powered tool for operate aircraft safely and efficiently with automated analysis and recommendations"
+      },
+      {
+        "name": "Safety Checklist Agent",
+        "task": "Intelligent assistance for conduct pre-flight checks and planning with smart suggestions and references"
+      },
+      {
+        "name": "Documentation Agent",
+        "task": "Track, monitor, and report on navigate using instruments and visual references with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Airlines for Pilots"
+      }
+    ]
+  },
+  {
+    "num": 63,
+    "industry": "Shipbuilding",
+    "profession": "Naval Architect",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Naval Architect Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Calculator Agent",
+        "task": "AI-powered tool for design shipbuilding buildings and structures with automated analysis and recommendations"
+      },
+      {
+        "name": "Code Reference Agent",
+        "task": "Intelligent assistance for create architectural drawings and models with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on supervise construction projects with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Shipbuilding for Naval Architects"
+      }
+    ]
+  },
+  {
+    "num": 64,
+    "industry": "Railways",
+    "profession": "Railway Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Railway Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design and maintain railways systems with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for inspect and repair track/signal infrastructure with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on ensure safety and operational standards with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Railways for Railway Engineers"
+      }
+    ]
+  },
+  {
+    "num": 65,
+    "industry": "Road Transport",
+    "profession": "Transport Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Transport Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Road Transport Dashboard Agent",
+        "task": "AI-powered tool for manage road transport transport operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for plan vehicle routes and schedules with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on ensure driver compliance and safety with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Road Transport for Transport Managers"
+      }
+    ]
+  },
+  {
+    "num": 66,
+    "industry": "Logistics",
+    "profession": "Logistics Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Logistics Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Logistics Dashboard Agent",
+        "task": "AI-powered tool for coordinate logistics logistics and transport with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for optimize delivery routes and schedules with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on manage logistics partners and carriers with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Logistics for Logistics Managers"
+      }
+    ]
+  },
+  {
+    "num": 67,
+    "industry": "Ports & Terminals",
+    "profession": "Port Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Port Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Ports Dashboard Agent",
+        "task": "AI-powered tool for manage ports & terminals port terminal operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for coordinate vessel berthing and cargo handling with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on optimize port resource utilization with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Ports & Terminals for Port Managers"
+      }
+    ]
+  },
+  {
+    "num": 68,
+    "industry": "Steel & Re-Rolling",
+    "profession": "Metallurgical Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Metallurgical Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for manage steel & re-rolling metallurgical processes with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for analyze metal compositions and properties with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on optimize heat treatment and alloying with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Steel & Re-Rolling for Metallurgical Engineers"
+      }
+    ]
+  },
+  {
+    "num": 69,
+    "industry": "Cement",
+    "profession": "Plant Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Plant Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Cement Dashboard Agent",
+        "task": "AI-powered tool for manage overall cement plant operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for set production targets and budgets with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on coordinate all plant departments with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Cement for Plant Managers"
+      }
+    ]
+  },
+  {
+    "num": 70,
+    "industry": "Ceramics",
+    "profession": "Ceramic Engineer",
+    "tasks": [
+      "Glaze & Body Formula Optimization",
+      "Kiln Firing Profile Management",
+      "Material Property Testing",
+      "Ceramics Engineering Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Formula Optimizer Agent",
+        "task": "Optimize glaze recipes, body compositions, and firing shrinkage calculations using AI"
+      },
+      {
+        "name": "Kiln Profile Agent",
+        "task": "Manage kiln temperature profiles, firing curves, and energy optimization schedules"
+      },
+      {
+        "name": "Property Tester Agent",
+        "task": "Analyze porosity, water absorption, flexural strength, and thermal shock test results"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Ceramic Engineering, Materials Science, and Kiln Technology"
+      }
+    ]
+  },
+  {
+    "num": 71,
+    "industry": "Glass",
+    "profession": "Glazier",
+    "tasks": [
+      "Install glass in frames Automation",
+      "Set glass with putty Assistance",
+      "Performance Reporting",
+      "Glazier Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Glazing Spec Agent",
+        "task": "Automate and assist with install glass in frames using AI-powered glass manufacturing and installation tools"
+      },
+      {
+        "name": "Bend Radius Agent",
+        "task": "Provide intelligent recommendations and insights for set glass with putty"
+      },
+      {
+        "name": "Bevel Spec Agent",
+        "task": "Monitor, track and report on seal glass edges with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Glass Manufacturing and Processing for Glaziers"
+      }
+    ]
+  },
+  {
+    "num": 72,
+    "industry": "Rubber",
+    "profession": "Vulcanizing Operator",
+    "tasks": [
+      "Operate vulcanizing equipment Optimization",
+      "Smart Load products for curing",
+      "Quality Monitoring",
+      "Vulcanizing Operator Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Calendar Setting Agent",
+        "task": "Automate and assist with operate vulcanizing equipment using AI-powered rubber manufacturing tools"
+      },
+      {
+        "name": "Recycling Guide Agent",
+        "task": "Provide intelligent recommendations and insights for load products for curing"
+      },
+      {
+        "name": "Compound Formula Agent",
+        "task": "Monitor, track and report on control vulcanizing parameters with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Rubber Technology and Manufacturing for Vulcanizing Operators"
+      }
+    ]
+  },
+  {
+    "num": 73,
+    "industry": "Plastic",
+    "profession": "Injection Molding Operator",
+    "tasks": [
+      "Operate injection molding machines Automation",
+      "Load molds and materials Assistance",
+      "Performance Reporting",
+      "Injection Molding Operator Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Injection Parameter Agent",
+        "task": "Automate and assist with operate injection molding machines using AI-powered plastics manufacturing tools"
+      },
+      {
+        "name": "Weld Parameter Agent",
+        "task": "Provide intelligent recommendations and insights for load molds and materials"
+      },
+      {
+        "name": "Recycle Sorter Agent",
+        "task": "Monitor, track and report on monitor molding cycles with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Plastics Manufacturing and Processing for Injection Molding Operators"
+      }
+    ]
+  },
+  {
+    "num": 74,
+    "industry": "Chemical & Fertilizer",
+    "profession": "Chemical Engineer",
+    "tasks": [
+      "Process Design Assistance",
+      "Reactor Performance Monitoring",
+      "Safety & Waste Compliance",
+      "Chemical Engineering Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Process Designer Agent",
+        "task": "Calculate mass/energy balances, design process flow diagrams, and optimize unit operations"
+      },
+      {
+        "name": "Reactor Monitor Agent",
+        "task": "Monitor reactor temperatures, pressures, conversion rates, and yield analytics in real-time"
+      },
+      {
+        "name": "Safety Compliance Agent",
+        "task": "Track chemical safety data sheets, waste disposal compliance, and environmental regulations"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Chemical Engineering, Process Design, and Industrial Safety"
+      }
+    ]
+  },
+  {
+    "num": 75,
+    "industry": "Oil & Gas",
+    "profession": "Petroleum Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Petroleum Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design oil and gas extraction systems with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for analyze reservoir performance data with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on optimize drilling and production operations with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Oil & Gas for Petroleum Engineers"
+      }
+    ]
+  },
+  {
+    "num": 76,
+    "industry": "Renewable Energy",
+    "profession": "Solar Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Solar Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design renewable energy solar energy systems with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for conduct site assessments and energy modeling with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on specify solar panels and inverters with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Renewable Energy for Solar Engineers"
+      }
+    ]
+  },
+  {
+    "num": 77,
+    "industry": "Water Supply & Utilities",
+    "profession": "Water Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Water Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for design water supply & utilities water supply systems with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for analyze water quality and treatment with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on manage water distribution networks with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Water Supply & Utilities for Water Engineers"
+      }
+    ]
+  },
+  {
+    "num": 78,
+    "industry": "Waste Management",
+    "profession": "Environmental Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Environmental Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for conduct environmental assessments for waste management with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for monitor environmental compliance and emissions with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on prepare environmental reports and documentation with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Waste Management for Environmental Engineers"
+      }
+    ]
+  },
+  {
+    "num": 79,
+    "industry": "Textile Manufacturing",
+    "profession": "Textile Engineer",
+    "tasks": [
+      "Fabric Construction Design",
+      "Yarn Selection Advisory",
+      "Test Result Analysis",
+      "Textile Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Fabric Design Agent",
+        "task": "Calculate fabric construction parameters including EPI, PPI, GSM, and cover factor with AI"
+      },
+      {
+        "name": "Yarn Spec Agent",
+        "task": "Recommend yarn counts, twist factors, and blend ratios for desired fabric properties"
+      },
+      {
+        "name": "Test Result Agent",
+        "task": "Analyze tensile, tear, pilling, and shrinkage test results and flag non-conformances"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Textile Engineering, Dyeing, and Fabric Production for Textile Engineers"
+      }
+    ]
+  },
+  {
+    "num": 80,
+    "industry": "Ready-Made Garments (RMG)",
+    "profession": "Merchandiser",
+    "tasks": [
+      "Cost Sheet Automation",
+      "Order Progress Tracking",
+      "Buyer Communication Drafting",
+      "Merchandiser Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Costing Calculator Agent",
+        "task": "Calculate garment costs including fabric, trims, CM, and overheads automatically"
+      },
+      {
+        "name": "Order Pipeline Agent",
+        "task": "Track all orders from sampling to shipment with milestone alerts and status updates"
+      },
+      {
+        "name": "Buyer Communication Agent",
+        "task": "Draft professional emails, price negotiations, and buyer correspondence with AI"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Ready-Made Garments, Production, and Export Compliance for Merchandisers"
+      }
+    ]
+  },
+  {
+    "num": 81,
+    "industry": "Jute & Jute Products",
+    "profession": "Jute Technologist",
+    "tasks": [
+      "Design Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Jute Technologist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Jute Technologist Assistant Agent",
+        "task": "AI-powered tool for design jute product specifications with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for optimize jute processing techniques with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on test jute fiber and product quality with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Jute & Jute Products for Jute Technologists"
+      }
+    ]
+  },
+  {
+    "num": 82,
+    "industry": "Leather & Footwear",
+    "profession": "Leather Technologist",
+    "tasks": [
+      "Manage Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Leather Technologist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Leather Technologist Assistant Agent",
+        "task": "AI-powered tool for manage leather tanning and finishing processes with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for ensure leather quality and grading with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on optimize chemical usage in processing with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Leather & Footwear for Leather Technologists"
+      }
+    ]
+  },
+  {
+    "num": 83,
+    "industry": "Fashion & Design",
+    "profession": "Apparel Designer",
+    "tasks": [
+      "Trend Forecasting Assistance",
+      "Pattern & Spec Sheet Generation",
+      "Material Sourcing",
+      "Fashion Design Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Trend Forecaster Agent",
+        "task": "Analyze global fashion trends, color forecasts, and seasonal style directions using AI"
+      },
+      {
+        "name": "Spec Sheet Agent",
+        "task": "Generate technical spec sheets, measurement charts, and construction details for production"
+      },
+      {
+        "name": "Material Sourcer Agent",
+        "task": "Source fabrics by type, price, minimum order, and match materials to design requirements"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Fashion Design, Pattern Making, and Apparel Manufacturing"
+      }
+    ]
+  },
+  {
+    "num": 84,
+    "industry": "Furniture Manufacturing",
+    "profession": "Industrial Designer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Industrial Designer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Concept Agent",
+        "task": "AI-powered tool for design furniture manufacturing products for manufacturing with automated analysis and recommendations"
+      },
+      {
+        "name": "Material Sourcer Agent",
+        "task": "Intelligent assistance for create prototypes and 3d models with smart suggestions and references"
+      },
+      {
+        "name": "Production Spec Agent",
+        "task": "Track, monitor, and report on select materials and manufacturing processes with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Furniture Manufacturing for Industrial Designers"
+      }
+    ]
+  },
+  {
+    "num": 85,
+    "industry": "Handicrafts",
+    "profession": "Artisan",
+    "tasks": [
+      "Daily Activity Planning",
+      "Market Price Tracking",
+      "Best Practice Advisory",
+      "Artisan Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Artisan Assistant Agent",
+        "task": "AI-powered tool for craft handicrafts products by hand with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for maintain traditional production techniques with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on source raw materials and supplies with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Handicrafts for Artisans"
+      }
+    ]
+  },
+  {
+    "num": 86,
+    "industry": "Jewelry",
+    "profession": "Jewelry Designer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Jewelry Designer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Design Concept Agent",
+        "task": "AI-powered tool for design jewelry products and collections with automated analysis and recommendations"
+      },
+      {
+        "name": "Material Sourcer Agent",
+        "task": "Intelligent assistance for evaluate and grade jewelry materials with smart suggestions and references"
+      },
+      {
+        "name": "Production Spec Agent",
+        "task": "Track, monitor, and report on create technical drawings and specifications with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Jewelry for Jewelry Designers"
+      }
+    ]
+  },
+  {
+    "num": 87,
+    "industry": "Agriculture",
+    "profession": "Agronomist",
+    "tasks": [
+      "Advise Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Agronomist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Agronomist Assistant Agent",
+        "task": "AI-powered tool for advise on agriculture crop management practices with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for analyze soil health and fertility with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on recommend pest and disease control measures with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Agriculture for Agronomists"
+      }
+    ]
+  },
+  {
+    "num": 88,
+    "industry": "Fisheries",
+    "profession": "Aquaculture Specialist",
+    "tasks": [
+      "Expert Knowledge Reference",
+      "Advisory & Recommendation",
+      "Report Drafting Assistance",
+      "Aquaculture Specialist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Expert Reference Agent",
+        "task": "AI-powered tool for design and manage aquaculture systems with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for monitor water quality and fish health with smart suggestions and references"
+      },
+      {
+        "name": "Documentation Agent",
+        "task": "Track, monitor, and report on optimize feeding and stocking protocols with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Fisheries for Aquaculture Specialists"
+      }
+    ]
+  },
+  {
+    "num": 89,
+    "industry": "Dairy",
+    "profession": "Dairy Technologist",
+    "tasks": [
+      "Develop Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Dairy Technologist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Dairy Technologist Assistant Agent",
+        "task": "AI-powered tool for develop and optimize dairy food products with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for conduct laboratory testing and analysis with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on ensure food safety and quality standards with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Dairy for Dairy Technologists"
+      }
+    ]
+  },
+  {
+    "num": 90,
+    "industry": "Poultry",
+    "profession": "Veterinarian",
+    "tasks": [
+      "Diagnose Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Veterinarian Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Veterinarian Assistant Agent",
+        "task": "AI-powered tool for diagnose and treat poultry animal health issues with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for administer vaccinations and medications with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on conduct health inspections and screenings with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Poultry for Veterinarians"
+      }
+    ]
+  },
+  {
+    "num": 91,
+    "industry": "Tea Industry",
+    "profession": "Plantation Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Plantation Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Tea Industry Dashboard Agent",
+        "task": "AI-powered tool for manage tea industry plantation operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for supervise planting, pruning, and harvesting with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on manage plantation labor and resources with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Tea Industry for Plantation Managers"
+      }
+    ]
+  },
+  {
+    "num": 92,
+    "industry": "Food Processing",
+    "profession": "Food Technologist",
+    "tasks": [
+      "Develop Automation",
+      "Smart Advisory & Assistance",
+      "Performance Tracking",
+      "Food Technologist Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Food Technologist Assistant Agent",
+        "task": "AI-powered tool for develop and optimize food processing food products with automated analysis and recommendations"
+      },
+      {
+        "name": "Advisory Agent",
+        "task": "Intelligent assistance for conduct laboratory testing and analysis with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on ensure food safety and quality standards with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Food Processing for Food Technologists"
+      }
+    ]
+  },
+  {
+    "num": 93,
+    "industry": "Consumer Goods (FMCG)",
+    "profession": "Brand Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Brand Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Consumer Goods Dashboard Agent",
+        "task": "AI-powered tool for develop and manage consumer goods (fmcg) brand strategy with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for plan and execute brand campaigns with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on analyze brand performance and market share with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Consumer Goods (FMCG) for Brand Managers"
+      }
+    ]
+  },
+  {
+    "num": 94,
+    "industry": "Retail",
+    "profession": "Store Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Store Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Retail Dashboard Agent",
+        "task": "AI-powered tool for manage daily retail store/branch operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for lead and motivate store/branch team with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on achieve sales and service targets with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Retail for Store Managers"
+      }
+    ]
+  },
+  {
+    "num": 95,
+    "industry": "E-commerce",
+    "profession": "Operations Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Operations Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "E-commerce Dashboard Agent",
+        "task": "AI-powered tool for oversee daily e-commerce operations with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for optimize operational efficiency and costs with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on manage operational staff and resources with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about E-commerce for Operations Managers"
+      }
+    ]
+  },
+  {
+    "num": 96,
+    "industry": "Electronics Manufacturing",
+    "profession": "Electronics Engineer",
+    "tasks": [
+      "Design & Calculation Assistance",
+      "Technical Reference & Standards",
+      "Project Tracking",
+      "Electronics Engineer Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Technical Calculator Agent",
+        "task": "AI-powered tool for perform core electronics engineer duties in electronics manufacturing with automated analysis and recommendations"
+      },
+      {
+        "name": "Reference Manual Agent",
+        "task": "Intelligent assistance for manage electronics engineer workflows and processes with smart suggestions and references"
+      },
+      {
+        "name": "Project Tracker Agent",
+        "task": "Track, monitor, and report on collaborate with team members and stakeholders with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Electronics Manufacturing for Electronics Engineers"
+      }
+    ]
+  },
+  {
+    "num": 97,
+    "industry": "Security",
+    "profession": "Security Supervisor",
+    "tasks": [
+      "Supervise security staff Optimization",
+      "Smart Assign security duties",
+      "Quality Monitoring",
+      "Security Supervisor Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Staff Roster Agent",
+        "task": "Automate and assist with supervise security staff using AI-powered security services tools"
+      },
+      {
+        "name": "Detection Protocol Agent",
+        "task": "Provide intelligent recommendations and insights for assign security duties"
+      },
+      {
+        "name": "Patrol Route Agent",
+        "task": "Monitor, track and report on review security reports with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Security Operations and Safety Management for Security Supervisors"
+      }
+    ]
+  },
+  {
+    "num": 98,
+    "industry": "Defence",
+    "profession": "Equipment Maintenance Technician",
+    "tasks": [
+      "Maintain defence equipment Automation",
+      "Repair military machinery Assistance",
+      "Performance Reporting",
+      "Equipment Maintenance Technician Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Maintenance Protocol Agent",
+        "task": "Automate and assist with maintain defence equipment using AI-powered defence and military services tools"
+      },
+      {
+        "name": "Safety Protocol Agent",
+        "task": "Provide intelligent recommendations and insights for repair military machinery"
+      },
+      {
+        "name": "Vehicle Maintenance Agent",
+        "task": "Monitor, track and report on perform equipment checks with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Defence Operations and Military Logistics for Equipment Maintenance Technicians"
+      }
+    ]
+  },
+  {
+    "num": 99,
+    "industry": "Sports Industry",
+    "profession": "Sports Manager",
+    "tasks": [
+      "Operations Dashboard & Analytics",
+      "Smart Planning & Scheduling",
+      "Performance Reporting",
+      "Sports Manager Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Sports Industry Dashboard Agent",
+        "task": "AI-powered tool for manage sports industry sports operations and events with automated analysis and recommendations"
+      },
+      {
+        "name": "Planning Assistant Agent",
+        "task": "Intelligent assistance for coordinate athlete development programs with smart suggestions and references"
+      },
+      {
+        "name": "KPI Tracker Agent",
+        "task": "Track, monitor, and report on handle sports facility management with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about Sports Industry for Sports Managers"
+      }
+    ]
+  },
+  {
+    "num": 100,
+    "industry": "BPO",
+    "profession": "Customer Service Executive",
+    "tasks": [
+      "Task Automation & Tracking",
+      "Documentation Assistance",
+      "Compliance Monitoring",
+      "Customer Service Executive Learning"
+    ],
+    "sub_agents": [
+      {
+        "name": "Workflow Agent",
+        "task": "AI-powered tool for handle bpo customer inquiries and support with automated analysis and recommendations"
+      },
+      {
+        "name": "Communication Agent",
+        "task": "Intelligent assistance for resolve customer complaints and issues with smart suggestions and references"
+      },
+      {
+        "name": "Tracker Agent",
+        "task": "Track, monitor, and report on maintain customer satisfaction standards with real-time AI analytics"
+      },
+      {
+        "name": "Learning Agent",
+        "task": "Learn anything with AI about BPO for Customer Service Executives"
+      }
+    ]
+  }
+]

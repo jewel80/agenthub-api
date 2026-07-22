@@ -1,0 +1,26 @@
+# Render Blueprint — one-click backend deploy.
+# Set the `sync: false` env vars in the Render dashboard after creating the service.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: agenthub-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false # paste your Supabase/Neon postgresql+asyncpg:// URL
+      - key: ANTHROPIC_API_KEY
+        sync: false # paste your Anthropic key
+      - key: LLM_PROVIDER
+        value: anthropic
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-4-5
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false # your Vercel frontend URL, e.g. https://agenthub-web.vercel.app
+      - key: RATE_LIMIT_PER_MIN
+        value: "20"
