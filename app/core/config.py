@@ -6,6 +6,8 @@ fallback: a missing or non-Postgres DATABASE_URL fails at startup.
 """
 from __future__ import annotations
 
+from urllib.parse import urlsplit
+
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -55,6 +57,14 @@ class Settings(BaseSettings):
     # --- Guardrails ---
     RATE_LIMIT_PER_MIN: int = 20  # 0 disables rate limiting
 
+    # --- Internal endpoints ---
+    # Protects /meta/* in production: requests must send X-Admin-Token with
+    # this value. Empty + production => the endpoints are disabled (404).
+    ADMIN_TOKEN: str = ""
+
+    # --- Observability ---
+    LOG_FORMAT: str = "text"  # text | json (json for log shippers)
+
     # --- Pipeline ---
     AGENTS_CSV_PATH: str = "data/agents_sample.csv"
 
@@ -69,6 +79,22 @@ class Settings(BaseSettings):
                 "DATABASE_URL must start with postgresql+asyncpg:// "
                 "(SQLite is not supported)"
             )
+        for name in ("DATABASE_URL", "TEST_DATABASE_URL"):
+            url = getattr(self, name)
+            if not url:
+                continue
+            parts = urlsplit(url)
+            userinfo = (parts.username or "") + (parts.password or "")
+            if any(c in userinfo for c in "@:/?#"):
+                # Raw separators inside the credentials parse differently
+                # across DSN parsers (stdlib splits userinfo at the LAST '@',
+                # asyncpg at the first) and surface later as cryptic DNS or
+                # auth errors. Fail at startup with the actual fix.
+                raise ValueError(
+                    f"{name}: credentials contain unencoded characters "
+                    "(@:/?#) — percent-encode the username/password "
+                    "(e.g. '@' -> '%40')"
+                )
         if self.TEST_DATABASE_URL and not self.TEST_DATABASE_URL.startswith(
             "postgresql+asyncpg://"
         ):
@@ -77,6 +103,22 @@ class Settings(BaseSettings):
             )
         if self.DB_SSL_MODE not in {"require", "disable"}:
             raise ValueError("DB_SSL_MODE must be 'require' or 'disable'")
+        if self.ENVIRONMENT != "development":
+            if self.JWT_SECRET == _DEV_JWT_SECRET:
+                raise ValueError(
+                    "JWT_SECRET still has the development default — set a "
+                    "strong generated secret "
+                    "(python -c \"import secrets; print(secrets.token_urlsafe(48))\")"
+                )
+            if len(self.JWT_SECRET) < 32:
+                raise ValueError(
+                    "JWT_SECRET must be at least 32 characters outside development"
+                )
+            if self.ENVIRONMENT == "production" and self.CORS_ORIGINS.strip() == "*":
+                raise ValueError(
+                    'CORS_ORIGINS must be an explicit allow-list in production '
+                    '( "*" is not allowed )'
+                )
         return self
 
     @property
