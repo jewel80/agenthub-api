@@ -8,23 +8,59 @@ from __future__ import annotations
 import uuid
 from collections.abc import Sequence
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.agent import Agent
 
 
-async def get_main_agents(db: AsyncSession) -> Sequence[Agent]:
-    """All active main agents (parent_id IS NULL), eager-loading sub-agents."""
+async def list_main_agents(
+    db: AsyncSession,
+    *,
+    industry: str | None = None,
+    q: str | None = None,
+    featured: bool | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> Sequence[Agent]:
+    """Active main agents with filtering/paging done in SQL (fix-doc F8).
+
+    `q` matches profession OR industry case-insensitively; `industry` is an
+    exact (case-insensitive) match. `limit=None` returns the full list.
+    """
     stmt = (
         select(Agent)
         .where(Agent.parent_id.is_(None), Agent.is_active.is_(True))
         .order_by(Agent.sort_order, Agent.profession)
         .options(selectinload(Agent.sub_agents))
     )
+    if industry:
+        stmt = stmt.where(func.lower(Agent.industry) == industry.lower())
+    if featured is not None:
+        stmt = stmt.where(Agent.is_featured.is_(featured))
+    if q:
+        pattern = f"%{q}%"
+        stmt = stmt.where(
+            or_(Agent.profession.ilike(pattern), Agent.industry.ilike(pattern))
+        )
+    if limit is not None:
+        stmt = stmt.limit(limit)
+    if offset:
+        stmt = stmt.offset(offset)
     res = await db.execute(stmt)
     return res.scalars().all()
+
+
+async def list_industries(db: AsyncSession) -> Sequence[str]:
+    """Distinct industries of active main agents, sorted (DISTINCT in SQL)."""
+    res = await db.execute(
+        select(Agent.industry)
+        .distinct()
+        .where(Agent.parent_id.is_(None), Agent.is_active.is_(True))
+        .order_by(Agent.industry)
+    )
+    return [row[0] for row in res.all()]
 
 
 async def get_main_agent_by_slug(db: AsyncSession, slug: str) -> Agent | None:

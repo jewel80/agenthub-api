@@ -1,12 +1,13 @@
 """Public catalog endpoints — browse all agents (no auth)."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
 from app.repositories import agent_repo
 from app.schemas.agent import AgentListItem, AgentOut, SubAgentOut
+from app.services import agent_service
 
 router = APIRouter()
 
@@ -17,17 +18,18 @@ async def list_agents(
     industry: str | None = Query(None, description="Filter by exact industry."),
     q: str | None = Query(None, description="Search profession/industry."),
     featured: bool | None = Query(None, description="Only featured agents."),
+    limit: int | None = Query(
+        None, ge=1, le=200, description="Page size (default: full list)."
+    ),
+    offset: int = Query(0, ge=0, description="Page offset."),
 ):
-    agents = await agent_repo.get_main_agents(db)
-    q_lower = q.lower() if q else None
+    # Filtering/paging happens in SQL (fix-doc F8); default = full list so the
+    # response contract is unchanged.
+    agents = await agent_repo.list_main_agents(
+        db, industry=industry, q=q, featured=featured, limit=limit, offset=offset
+    )
     items: list[AgentListItem] = []
     for a in agents:
-        if industry and a.industry.lower() != industry.lower():
-            continue
-        if featured is True and not a.is_featured:
-            continue
-        if q_lower and q_lower not in f"{a.profession} {a.industry}".lower():
-            continue
         active_subs = [s for s in a.sub_agents if s.is_active]
         items.append(
             AgentListItem(
@@ -45,9 +47,8 @@ async def list_agents(
 
 @router.get("/agents/{slug}", response_model=AgentOut, summary="Get one agent")
 async def get_agent(slug: str, db: AsyncSession = Depends(get_db)):
-    agent = await agent_repo.get_main_agent_by_slug(db, slug)
-    if agent is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Agent not found.")
+    # Shared helper: unknown and deactivated agents both 404 (fix-doc F4).
+    agent = await agent_service.get_active_main_agent_or_404(db, slug)
     active_subs = sorted(
         [s for s in agent.sub_agents if s.is_active], key=lambda s: s.sort_order
     )
@@ -75,5 +76,4 @@ async def get_agent(slug: str, db: AsyncSession = Depends(get_db)):
 
 @router.get("/industries", response_model=list[str], summary="List industries")
 async def list_industries(db: AsyncSession = Depends(get_db)):
-    agents = await agent_repo.get_main_agents(db)
-    return sorted({a.industry for a in agents})
+    return await agent_repo.list_industries(db)
