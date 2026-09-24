@@ -6,6 +6,7 @@ multi-instance deploy you'd swap this for Redis. Fine for a free-tier demo.
 """
 from __future__ import annotations
 
+import math
 import time
 from collections import deque
 from threading import Lock
@@ -33,6 +34,20 @@ class RateLimiter:
                 return False
             dq.append(now)
             return True
+
+    def retry_after(self, key: str) -> int:
+        """Seconds until the window frees a slot for `key` (>= 1; 0 = no wait).
+
+        Used for the 429 response's Retry-After header (fix-doc F9).
+        """
+        if self.max_per_min <= 0:
+            return 0
+        with self._lock:
+            dq = self._hits.get(key)
+            if not dq:
+                return 0
+            remaining = self.window - (time.monotonic() - dq[0])
+            return max(1, math.ceil(remaining))
 
 
 _limiter: RateLimiter | None = None

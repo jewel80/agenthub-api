@@ -1,4 +1,4 @@
-"""FastAPI dependencies: DB session, current user, LLM provider."""
+"""FastAPI dependencies: DB session, current user, LLM provider, rate limiter."""
 from __future__ import annotations
 
 import uuid
@@ -14,6 +14,7 @@ from app.models.user import User
 from app.repositories import user_repo
 from app.services.llm import get_llm_provider
 from app.services.llm.base import LLMProvider
+from app.services.rate_limiter import RateLimiter, get_rate_limiter
 
 # Bearer-token scheme. tokenUrl is informational (login is JSON); the scheme
 # is only used to extract the bearer token from the Authorization header.
@@ -23,6 +24,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 def llm_provider() -> LLMProvider:
     """Inject the configured LLM provider (cached singleton)."""
     return get_llm_provider()
+
+
+def rate_limiter() -> RateLimiter:
+    """Inject the rate limiter (cached singleton; overridable in tests)."""
+    return get_rate_limiter()
 
 
 async def get_current_user(
@@ -43,8 +49,20 @@ async def get_current_user(
     if not user_id:
         raise credentials_exc
 
-    user = await user_repo.get_user_by_id(db, uuid.UUID(user_id))
+    # A signed token with a non-UUID `sub` is malformed -> 401, not 500 (F10).
+    try:
+        user_uuid = uuid.UUID(str(user_id))
+    except ValueError:
+        raise credentials_exc from None
+
+    user = await user_repo.get_user_by_id(db, user_uuid)
     if user is None:
+        raise credentials_exc
+
+    # The agent_id claim must still match the account's binding: a token
+    # re-bound to another agent is treated as invalid (fix-doc F12).
+    token_agent_id = payload.get("agent_id")
+    if token_agent_id is not None and str(user.agent_id) != str(token_agent_id):
         raise credentials_exc
     return user
 
