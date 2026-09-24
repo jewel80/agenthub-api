@@ -7,6 +7,7 @@ within the agent it was created for.
 from __future__ import annotations
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token, hash_password, verify_password
@@ -20,22 +21,42 @@ async def signup(
     db: AsyncSession, agent: Agent, *, email: str, password: str
 ) -> tuple[User, TokenOut, bool]:
     existing = await user_repo.get_user_by_email_and_agent(db, email, agent.id)
-    if existing:
-        # Idempotent signup: the same email + correct password logs the caller
-        # in and hands back a token (no 409). A wrong password means someone is
-        # trying to (re)claim an address they don't own, so it still conflicts.
-        if not verify_password(password, existing.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="An account with this email already exists for this agent.",
+    if existing is None:
+        try:
+            user = await user_repo.create_user(
+                db,
+                email=email,
+                password_hash=hash_password(password),
+                agent_id=agent.id,
             )
-        return existing, _issue_token(existing, agent), False
-    user = await user_repo.create_user(
-        db, email=email, password_hash=hash_password(password), agent_id=agent.id
-    )
-    await db.commit()
-    await db.refresh(user)
-    return user, _issue_token(user, agent), True
+            await db.commit()
+        except IntegrityError:
+            # Signup race (fix-doc F5): a concurrent signup with the same
+            # (email, agent_id) won the UNIQUE constraint between our SELECT
+            # and INSERT. Roll back and continue on the winner's row.
+            await db.rollback()
+            # rollback() expires every instance on the session (incl. the
+            # agent) — reload it so later attribute access in sync helpers
+            # (token building) cannot hit a lazy refresh (MissingGreenlet).
+            await db.refresh(agent)
+            existing = await user_repo.get_user_by_email_and_agent(
+                db, email, agent.id
+            )
+            if existing is None:
+                raise  # a different constraint violation — surface it
+        else:
+            await db.refresh(user)
+            return user, _issue_token(user, agent), True
+
+    # Idempotent signup: the same email + correct password logs the caller
+    # in and hands back a token (no 409). A wrong password means someone is
+    # trying to (re)claim an address they don't own, so it still conflicts.
+    if not verify_password(password, existing.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email already exists for this agent.",
+        )
+    return existing, _issue_token(existing, agent), False
 
 
 async def login(
