@@ -5,7 +5,15 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    ForeignKey,
+    Identity,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 
@@ -34,6 +42,12 @@ class Message(Base):
     )
     role: Mapped[str] = mapped_column(String(16))  # "user" | "assistant"
     content: Mapped[str] = mapped_column(Text)
+    # Monotonic ordering key. Postgres `now()` is transaction-start time, so a
+    # user turn and its assistant reply committed in one transaction share a
+    # `created_at`; `seq` (identity) is the authoritative turn order.
+    seq: Mapped[int] = mapped_column(
+        BigInteger, Identity(always=False), unique=True, nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
