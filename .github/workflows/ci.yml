@@ -8,6 +8,27 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      # Throwaway CI database — not a real credential, exists only for this job.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: agenthub
+          POSTGRES_PASSWORD: agenthub
+          POSTGRES_DB: agenthub_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U agenthub"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://agenthub:agenthub@localhost:5432/agenthub_test
+      TEST_DATABASE_URL: postgresql+asyncpg://agenthub:agenthub@localhost:5432/agenthub_test
+      DB_SSL_MODE: disable
+      JWT_SECRET: ci-only-not-a-real-secret-just-for-tests-0123456789
+      LLM_PROVIDER: mock
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -16,8 +37,10 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff
+      - name: Lint
+        run: ruff check app alembic tests scripts
       - name: Run tests
-        # Tests use in-memory SQLite + the mock LLM provider, so no external
-        # services or secrets are required.
         run: pytest -q

@@ -34,8 +34,9 @@ async def _make_user(session_factory, agent_id) -> User:
 
 async def test_resolve_main_agent_prompt(session_factory, rich):
     async with session_factory() as s:
-        from app.models.agent import Agent
         from sqlalchemy import select
+
+        from app.models.agent import Agent
 
         doctor = (
             await s.execute(select(Agent).where(Agent.slug == "doctor-physician"))
@@ -55,8 +56,9 @@ async def test_resolve_main_agent_prompt(session_factory, rich):
 
 async def test_resolve_sub_agent_prompt(session_factory, rich):
     async with session_factory() as s:
-        from app.models.agent import Agent
         from sqlalchemy import select
+
+        from app.models.agent import Agent
 
         doctor = (
             await s.execute(select(Agent).where(Agent.slug == "doctor-physician"))
@@ -77,8 +79,9 @@ async def test_resolve_sub_agent_prompt(session_factory, rich):
 
 async def test_cross_agent_resolution_forbidden(session_factory, rich):
     async with session_factory() as s:
-        from app.models.agent import Agent
         from sqlalchemy import select
+
+        from app.models.agent import Agent
 
         doctor = (
             await s.execute(select(Agent).where(Agent.slug == "doctor-physician"))
@@ -101,8 +104,9 @@ async def test_same_subagent_name_different_parent_different_prompt(
     resolves to genuinely different, parent-specialised behaviour.
     """
     async with session_factory() as s:
-        from app.models.agent import Agent
         from sqlalchemy import select
+
+        from app.models.agent import Agent
 
         doc_learn = (
             await s.execute(
@@ -123,8 +127,9 @@ async def test_same_subagent_name_different_parent_different_prompt(
 
 async def test_resolve_unknown_agent_404(session_factory, rich):
     async with session_factory() as s:
-        from app.models.agent import Agent
         from sqlalchemy import select
+
+        from app.models.agent import Agent
 
         doctor = (
             await s.execute(select(Agent).where(Agent.slug == "doctor-physician"))

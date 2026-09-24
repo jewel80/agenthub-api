@@ -22,11 +22,15 @@ python -m venv .venv
 # Unix:     source .venv/bin/activate
 pip install -r requirements.txt
 
-cp .env.example .env          # then edit: set ANTHROPIC_API_KEY (or LLM_PROVIDER=mock)
-alembic upgrade head          # create tables (SQLite by default — zero setup)
+cp .env.example .env          # set DATABASE_URL (PostgreSQL only) + ANTHROPIC_API_KEY (or LLM_PROVIDER=mock)
+alembic upgrade head          # create tables in your PostgreSQL database
 python -m app.pipeline.seed_agents        # load 100 agents + 400 sub-agents from CSV
 uvicorn app.main:app --reload --port 8000  # http://localhost:8000/docs
 ```
+
+**PostgreSQL is required** (`postgresql+asyncpg://…`); there is no SQLite
+fallback — the app refuses to start without a valid Postgres `DATABASE_URL`.
+For a local dev server without SSL, set `DB_SSL_MODE=disable`.
 
 Without an API key, set `LLM_PROVIDER=mock` in `.env` — every flow works with a
 deterministic stub reply (great for local dev / CI). With a key, set
@@ -35,11 +39,13 @@ deterministic stub reply (great for local dev / CI). With a key, set
 ### Tests
 
 ```bash
-pytest                        # 28 tests, no external services required
+pytest                        # runs against PostgreSQL via TEST_DATABASE_URL
 ```
 
-Tests use an in-memory SQLite DB + the mock provider, so they run anywhere with
-no secrets.
+Tests run against a **disposable PostgreSQL database** (set `TEST_DATABASE_URL`
+in `.env` — its tables are truncated between tests, so never point it at your
+main database) and use the mock provider, so no API key is needed. CI provisions
+a `postgres:16` service container automatically.
 
 ---
 
@@ -47,11 +53,17 @@ no secrets.
 
 | Variable | Required | Default | Notes |
 |---|---|---|---|
-| `DATABASE_URL` | yes (prod) | `sqlite+aiosqlite:///./agenthub.db` | Supabase: `postgresql+asyncpg://…` |
-| `JWT_SECRET` | yes (prod) | dev placeholder | Generate: `python -c "import secrets;print(secrets.token_urlsafe(48))"` |
+| `ENVIRONMENT` | no | `development` | `development` \| `staging` \| `production` |
+| `DATABASE_URL` | yes | — | PostgreSQL only: `postgresql+asyncpg://…` |
+| `TEST_DATABASE_URL` | tests | — | Disposable test DB (tables truncated) |
+| `DB_SSL_MODE` | no | `require` | `disable` for local dev without SSL |
+| `DB_USE_PGBOUNCER` | no | `false` | `true` behind a transaction-mode pooler |
+| `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` / `DB_POOL_TIMEOUT` | no | `10` / `5` / `10` | Connection pool tuning |
+| `JWT_SECRET` | yes (non-dev) | dev placeholder | ≥ 32 chars, not the dev default; generate: `python -c "import secrets;print(secrets.token_urlsafe(48))"` |
 | `LLM_PROVIDER` | no | `anthropic` | `anthropic` \| `mock` |
 | `ANTHROPIC_API_KEY` | if `anthropic` | — | |
 | `ANTHROPIC_MODEL` | no | `claude-haiku-4-5` | |
+| `LLM_TIMEOUT_SECONDS` | no | `45` | Client timeout for LLM calls |
 | `CORS_ORIGINS` | no | `http://localhost:3000` | Comma-separated frontend URLs |
 | `RATE_LIMIT_PER_MIN` | no | `20` | Per-user chat cap; `0` disables |
 | `AGENTS_CSV_PATH` | no | `data/agents_sample.csv` | Source CSV for the pipeline |
@@ -160,8 +172,8 @@ It works on Render, Railway, or Fly.io.
   `ANTHROPIC_API_KEY`, and `CORS_ORIGINS` (your frontend URL) in the dashboard.
   `JWT_SECRET` auto-generates.
 - **Supabase note:** if using the PgBouncer transaction pooler (port 6543),
-  asyncpg needs `statement_cache_size=0` — already applied automatically in
-  `core/db.py` for any `postgres` URL.
+  set `DB_USE_PGBOUNCER=true` — this disables asyncpg statement caching
+  (required in transaction mode) in `core/db.py`.
 
 ### Admin path to add a new agent (zero code)
 

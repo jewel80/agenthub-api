@@ -5,7 +5,7 @@ without touching call sites.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -41,12 +41,14 @@ def create_access_token(
     The `agent_id` claim is the main agent the user authenticated under.
     Protected endpoints validate this claim against the requested resource.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict[str, Any] = {
         "sub": sub,
         "agent_id": str(agent_id),
         "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()),
+        "exp": int(
+            (now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp()
+        ),
     }
     if extra:
         payload.update(extra)

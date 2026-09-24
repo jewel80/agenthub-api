@@ -38,8 +38,8 @@ class Message(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="messages")
-    agent: Mapped["Agent"] = relationship(
+    user: Mapped[User] = relationship("User", back_populates="messages")
+    agent: Mapped[Agent] = relationship(
         "Agent", back_populates="messages", foreign_keys=[agent_id]
     )
 

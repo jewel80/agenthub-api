@@ -36,8 +36,8 @@ async def get_current_user(
     )
     try:
         payload = decode_access_token(token)
-    except jwt.PyJWTError:
-        raise credentials_exc
+    except jwt.PyJWTError as exc:
+        raise credentials_exc from exc
 
     user_id = payload.get("sub")
     if not user_id:

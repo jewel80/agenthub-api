@@ -1,0 +1,29 @@
+# Ruff — lint baseline for the project (run in CI and before every commit).
+target-version = "py313"   # minimum supported Python (tested on 3.13/3.14)
+line-length = 88
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "UP",  # pyupgrade (modern syntax)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "RUF", # ruff-specific rules
+]
+
+[lint.flake8-bugbear]
+# FastAPI dependency injection uses calls in parameter defaults by design.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Header",
+]
+
+[lint.per-file-ignores]
+# Auto-generated migration files routinely exceed the line limit.
+"alembic/versions/*" = ["E501"]

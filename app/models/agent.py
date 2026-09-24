@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -42,7 +42,7 @@ class Agent(Base):
     # never branches on which agent it is.
     system_prompt: Mapped[str] = mapped_column(Text, default="")
     # NULL => main agent; non-NULL => sub-agent of that parent.
-    parent_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("agents.id", ondelete="CASCADE"), nullable=True, index=True
     )
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
@@ -54,13 +54,13 @@ class Agent(Base):
     )
 
     # Self-referential adjacency list for the parent/sub-agent tree.
-    parent: Mapped[Optional["Agent"]] = relationship(
+    parent: Mapped[Agent | None] = relationship(
         "Agent", remote_side="Agent.id", back_populates="sub_agents"
     )
-    sub_agents: Mapped[list["Agent"]] = relationship(
+    sub_agents: Mapped[list[Agent]] = relationship(
         "Agent", back_populates="parent", cascade="all, delete-orphan"
     )
-    messages: Mapped[list["Message"]] = relationship(
+    messages: Mapped[list[Message]] = relationship(
         "Message", back_populates="agent", foreign_keys="Message.agent_id"
     )
 

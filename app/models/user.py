@@ -47,8 +47,8 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
-    agent: Mapped["Agent"] = relationship("Agent", foreign_keys=[agent_id])
-    messages: Mapped[list["Message"]] = relationship(
+    agent: Mapped[Agent] = relationship("Agent", foreign_keys=[agent_id])
+    messages: Mapped[list[Message]] = relationship(
         "Message", back_populates="user", cascade="all, delete-orphan"
     )
 

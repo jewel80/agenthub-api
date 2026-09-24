@@ -117,7 +117,9 @@ async def seed(
         main_slug = slugify(profession)
         main_prompt = build_main_prompt(industry, profession, tasks)
         if polish_fn:
-            main_prompt = await polish_fn(main_prompt, f"a senior {profession} in {industry}")
+            main_prompt = await polish_fn(
+                main_prompt, f"a senior {profession} in {industry}"
+            )
 
         main_agent = await agent_repo.upsert_agent(
             db,
@@ -137,7 +139,9 @@ async def seed(
         )
         counts["main"] += 1
 
-        for index, (sname, stask) in enumerate(zip(sub_names, sub_tasks), start=1):
+        for index, (sname, stask) in enumerate(
+            zip(sub_names, sub_tasks, strict=False), start=1
+        ):
             if not sname or not str(sname).strip():
                 continue
             sub_slug = f"{main_slug}-{slugify(sname)}"
@@ -168,7 +172,9 @@ async def seed(
 
 async def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Seed agents from CSV into the DB.")
-    parser.add_argument("--csv", default=settings.AGENTS_CSV_PATH, help="Path to agents CSV.")
+    parser.add_argument(
+        "--csv", default=settings.AGENTS_CSV_PATH, help="Path to agents CSV."
+    )
     parser.add_argument(
         "--llm-polish",
         action="store_true",

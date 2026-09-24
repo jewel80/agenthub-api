@@ -1,35 +1,72 @@
 """Shared pytest fixtures.
 
-Tests run against an in-memory SQLite DB (StaticPool => single shared
-connection so all sessions see seeded data) with the real FastAPI app via
-httpx ASGITransport. No external services required.
+Tests run against **PostgreSQL** via TEST_DATABASE_URL (never the main DB):
+the schema is created once per session with `alembic upgrade head`, and all
+tables are truncated after every test for isolation. The app under test is
+the real FastAPI app via httpx ASGITransport, with the deterministic mock LLM
+provider injected (no API key needed).
 """
 from __future__ import annotations
 
-import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+import os
+from pathlib import Path
 
-from app.core.db import get_db
+import pytest
+import pytest_asyncio
+from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+from alembic import command
+from app.core.config import settings
+from app.core.db import build_connect_args, get_db
 from app.core.deps import llm_provider
 from app.main import app
-from app.models import Base
 from app.models.agent import Agent
 from app.services.llm.mock_provider import MockProvider
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+
+TEST_DB_URL = os.environ.get("TEST_DATABASE_URL") or settings.TEST_DATABASE_URL
+
+# Tables truncated between tests (CASCADE resolves FK order).
+_ALL_TABLES = ("messages", "users", "agents")
+
+
+def _require_test_db() -> None:
+    if not TEST_DB_URL.startswith("postgresql+asyncpg://"):
+        pytest.exit(
+            "TEST_DATABASE_URL must point at a disposable PostgreSQL database\n"
+            "(postgresql+asyncpg://user:pass@host:port/dbname).\n"
+            "Tests TRUNCATE tables — never point this at your main database.\n"
+            "Add it to .env or the environment before running pytest.",
+            returncode=3,
+        )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _run_migrations():
+    """Create the schema once per session on the test database."""
+    _require_test_db()
+    os.environ["ALEMBIC_DATABASE_URL"] = TEST_DB_URL
+    alembic_cfg = Config(str(_REPO_ROOT / "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", str(_REPO_ROOT / "alembic"))
+    command.upgrade(alembic_cfg, "head")
 
 
 @pytest_asyncio.fixture
 async def engine():
+    """Per-test engine against the test DB; wipes all data afterwards."""
     eng = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        poolclass=StaticPool,
-        connect_args={"check_same_thread": False},
-        future=True,
+        TEST_DB_URL, pool_pre_ping=True, connect_args=build_connect_args()
     )
-    async with eng.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
     yield eng
+    async with eng.begin() as conn:
+        for table in _ALL_TABLES:
+            await conn.execute(
+                text(f'TRUNCATE TABLE "{table}" RESTART IDENTITY CASCADE')
+            )
     await eng.dispose()
 
 
@@ -124,7 +161,8 @@ async def rich(session_factory):
                     description="d",
                     system_prompt=(
                         'You are "Clinical Advisor Agent", a specialised sub-agent '
-                        "for a Doctor / Physician in Healthcare. Focus: clinical advice."
+                        "for a Doctor / Physician in Healthcare. "
+                        "Focus: clinical advice."
                     ),
                     parent_id=doctor.id,
                     sort_order=1,
