@@ -16,6 +16,16 @@ class LLMMessage:
     content: str
 
 
+class LLMUnavailableError(RuntimeError):
+    """The LLM provider is temporarily unavailable (timeout, connection
+    failure, rate limit, or 5xx).
+
+    Mapped to HTTP 503 + ``Retry-After`` by the app-level exception handler.
+    The message must never contain prompt content or credentials — only the
+    error type and status.
+    """
+
+
 class LLMProvider(ABC):
     """Minimal contract every provider implementation satisfies."""
 
@@ -32,5 +42,9 @@ class LLMProvider(ABC):
         max_tokens: int = 1024,
         temperature: float = 0.7,
     ) -> str:
-        """Return the assistant's text completion for the given turn."""
+        """Return the assistant's text completion for the given turn.
+
+        Implementations raise :class:`LLMUnavailableError` when the upstream
+        provider fails transiently; any other exception is a bug.
+        """
         ...

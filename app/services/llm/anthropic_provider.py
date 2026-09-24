@@ -2,18 +2,32 @@
 
 Supports both direct Anthropic access (ANTHROPIC_API_KEY) and Anthropic-
 compatible gateways (ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL, e.g. z.ai).
+Transient SDK failures are mapped to the domain error LLMUnavailableError;
+the client enforces a request timeout and a single retry.
 """
 from __future__ import annotations
 
+import anthropic
 from anthropic import AsyncAnthropic
 
 from app.core.config import settings
-from app.services.llm.base import LLMMessage, LLMProvider
+from app.services.llm.base import LLMMessage, LLMProvider, LLMUnavailableError
+
+# Transient upstream failures -> LLMUnavailableError (HTTP 503 upstream).
+_TRANSIENT_ERRORS = (
+    anthropic.APITimeoutError,
+    anthropic.APIConnectionError,
+    anthropic.RateLimitError,
+    anthropic.APIStatusError,
+)
 
 
 def _build_client() -> AsyncAnthropic:
     """Construct the client from whichever auth style is configured."""
-    kwargs: dict = {}
+    kwargs: dict = {
+        "timeout": settings.LLM_TIMEOUT_SECONDS,
+        "max_retries": 1,
+    }
     if settings.ANTHROPIC_BASE_URL:
         kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
     if settings.ANTHROPIC_AUTH_TOKEN:
@@ -40,13 +54,21 @@ class AnthropicProvider(LLMProvider):
         max_tokens: int = 1024,
         temperature: float = 0.7,
     ) -> str:
-        resp = await self._client.messages.create(
-            model=self._model,
-            system=system,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=[{"role": m.role, "content": m.content} for m in messages],
-        )
+        try:
+            resp = await self._client.messages.create(
+                model=self._model,
+                system=system,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                messages=[{"role": m.role, "content": m.content} for m in messages],
+            )
+        except _TRANSIENT_ERRORS as exc:
+            # Error type + HTTP status only — never the prompt or credentials.
+            status = getattr(exc, "status_code", None)
+            raise LLMUnavailableError(
+                f"anthropic unavailable: {type(exc).__name__}"
+                + (f" (status={status})" if status is not None else "")
+            ) from exc
         # Concatenate all text blocks (handles multi-block responses).
         return "".join(
             block.text for block in resp.content if getattr(block, "text", None)
