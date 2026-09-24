@@ -14,22 +14,22 @@ import asyncpg
 TEST_DB_NAME = "agenthub_test"
 
 
-def _admin_dsn() -> tuple[str, str]:
-    """Return (admin DSN pointing at the maintenance DB, original db name)."""
+def _admin_dsn() -> str:
+    """Admin DSN (maintenance DB) for raw asyncpg: postgresql:// scheme."""
     from app.core.config import settings
 
     url = settings.DATABASE_URL
     if not url.startswith("postgresql+asyncpg://"):
         raise SystemExit("DATABASE_URL must start with postgresql+asyncpg://")
     parts = urlsplit(url)
-    db = parts.path.lstrip("/") or "postgres"
-    admin = parts._replace(path="/postgres").geturl()
-    return admin, db
+    # asyncpg's raw client rejects the SQLAlchemy '+asyncpg' dialect suffix.
+    netloc = parts.netloc
+    admin = f"postgresql://{netloc}/postgres"
+    return admin
 
 
 async def main() -> int:
-    admin_dsn, _ = _admin_dsn()
-    conn = await asyncpg.connect(admin_dsn)
+    conn = await asyncpg.connect(_admin_dsn())
     try:
         exists = await conn.fetchval(
             "SELECT 1 FROM pg_database WHERE datname = $1", TEST_DB_NAME
