@@ -10,11 +10,9 @@ asyncpg>=0.30.0          # PostgreSQL async driver (the only supported DB)
 alembic>=1.14.0          # DB migrations
 pyjwt>=2.9.0             # JWT
 argon2-cffi>=23.1.0      # password hashing (argon2id)
-python-multipart>=0.0.12 # form parsing (OAuth2 scheme)
 tzdata>=2024.2           # IANA tz data (zoneinfo on Windows) for Alembic
 anthropic>=0.40.0        # LLM provider (primary)
 httpx>=0.27.0            # async test client + HTTP
 
-# --- dev / test ---
-pytest>=8.3.0
-pytest-asyncio>=0.24.0
+# Dev/test tooling (pytest, ruff, pip-tools) lives in requirements-dev.txt.
+# Reproducible installs (CI, Docker) use requirements.lock.

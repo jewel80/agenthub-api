@@ -1,0 +1,9 @@
+# AgentHub API — development / test tooling (NOT needed in production images).
+# Runtime dependencies live in requirements.txt; reproducible installs use
+# requirements.lock (regenerate with: pip-compile requirements.txt -o requirements.lock).
+-r requirements.txt
+
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+ruff>=0.16.0        # lint (ruff.toml holds the config)
+pip-tools>=7.4.0    # regenerate requirements.lock
