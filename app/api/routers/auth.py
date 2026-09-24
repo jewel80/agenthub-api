@@ -6,25 +6,22 @@ An account created under Agent A does NOT exist under Agent B.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
 from app.core.deps import get_current_user
 from app.models.agent import Agent
 from app.models.user import User
-from app.repositories import agent_repo
 from app.schemas.auth import LoginIn, SignupIn, TokenOut, UserOut
-from app.services import auth_service
+from app.services import agent_service, auth_service
 
 router = APIRouter()
 
 
 async def _resolve_main_agent(slug: str, db: AsyncSession) -> Agent:
-    agent = await agent_repo.get_main_agent_by_slug(db, slug)
-    if agent is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Agent not found.")
-    return agent
+    # Shared helper: unknown and deactivated agents both 404 (fix-doc F4).
+    return await agent_service.get_active_main_agent_or_404(db, slug)
 
 
 @router.post(
