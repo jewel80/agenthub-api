@@ -81,9 +81,10 @@ a `postgres:16` service container automatically.
 | POST | `/agents/{slug}/login` | – | Login scoped to that agent |
 | GET | `/me` | bearer | Current user |
 | POST | `/agents/{slug}/chat` | bearer | Chat with the agent or a `sub_agent_slug` |
-| GET | `/agents/{slug}/history` | bearer | Conversation history (per sub-agent) |
-| GET | `/meta/usage` | – | Agent usage stats (observability) |
+| GET | `/agents/{slug}/history` | bearer | Conversation history (per sub-agent, `limit` 1–100) |
+| GET | `/meta/usage` | admin token in prod | Agent usage stats (observability) |
 | GET | `/health` | – | Liveness |
+| GET | `/health/ready` | – | Readiness (database reachable) |
 
 ---
 
@@ -164,11 +165,19 @@ the client misbehaves.
 
 ## Deployment
 
-The included `Dockerfile` runs migrations + seeds on boot, then serves uvicorn.
-It works on Render, Railway, or Fly.io.
+The `Dockerfile` builds a non-root image from the pinned `requirements.lock`
+and serves uvicorn only. Migrations run as a **separate release step**, not on
+every boot (set `RUN_MIGRATIONS_ON_BOOT=true` for disposable/dev environments):
 
-- **Render:** `render.yaml` Blueprint is included. Create a Postgres on Supabase
-  (or Neon), set `DATABASE_URL` (the `postgresql+asyncpg://` pooler URL),
+```bash
+docker build -t agenthub-api .
+docker run --rm --env-file .env agenthub-api alembic upgrade head   # release step
+docker run --env-file .env -p 8000:8000 agenthub-api                # serve
+```
+
+- **Render:** `render.yaml` Blueprint is included (health check
+  `/health/ready`). Create a Postgres on Supabase (or Neon), set
+  `DATABASE_URL` (the `postgresql+asyncpg://` pooler URL),
   `ANTHROPIC_API_KEY`, and `CORS_ORIGINS` (your frontend URL) in the dashboard.
   `JWT_SECRET` auto-generates.
 - **Supabase note:** if using the PgBouncer transaction pooler (port 6543),
