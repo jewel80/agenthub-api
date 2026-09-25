@@ -53,6 +53,26 @@ class Settings(BaseSettings):
     ANTHROPIC_BASE_URL: str = ""       # optional gateway base URL
     ANTHROPIC_MODEL: str = "claude-haiku-4-5"
     LLM_TIMEOUT_SECONDS: int = 45
+    # Anthropic prompt caching: mark the stable system prompt + conversation
+    # prefix with cache_control breakpoints (roadmap §4.1).
+    LLM_PROMPT_CACHE_ENABLED: bool = True
+
+    # --- Streaming (roadmap §3) ---
+    STREAMING_ENABLED: bool = True
+    STREAM_MAX_SECONDS: int = 120
+    MAX_CONCURRENT_STREAMS_PER_USER: int = 2  # 0 disables the cap
+
+    # --- Redis (roadmap §5 / scale §2) ---
+    # Empty/unreachable Redis => the app degrades to in-memory rate limiting
+    # and skips caching; it must never crash or take the API down.
+    REDIS_URL: str = ""  # e.g. redis://localhost:6380/0
+
+    # --- Limits & quotas (roadmap §5) ---
+    RATE_LIMIT_IP_PER_MIN: int = 60     # unauthenticated routes; 0 disables
+    LOGIN_RATE_LIMIT_PER_MIN: int = 10  # per email+agent; 0 disables
+    LOGIN_MAX_FAILURES: int = 5         # before exponential lockout
+    DAILY_TOKEN_QUOTA_DEFAULT: int = 200000  # per user/day; 0 disables
+    GLOBAL_LLM_CONCURRENCY: int = 10    # in-flight LLM calls; 0 disables
 
     # --- Guardrails ---
     RATE_LIMIT_PER_MIN: int = 20  # 0 disables rate limiting
