@@ -205,17 +205,21 @@ the *same* engine — no deploy, no code change.
 
 ## What I'd do differently with more time
 
-- **Streaming chat** (SSE) so tokens render live instead of waiting for the full reply.
-- **Redis-backed** rate limiter + usage counters (current ones are per-process)
-  for multi-instance deploys.
-- **Email verification + refresh tokens** (current access JWT is long-lived for demo simplicity).
+- **Email verification + refresh tokens** (current access JWT is long-lived for demo simplicity;
+  see the design note for the planned refresh-token/token-versioning scheme).
 - **LLM-polished prompts by default** + per-agent tunable model/temperature config columns.
-- **Pagination + full-text search** on the catalog (currently loads all 100 client-side, which is fine at this scale).
+- **Full-text search** on the catalog (`pg_trgm`; currently `ILIKE` in SQL, which is fine at this scale).
 - **OpenAPI client generation** to share types with the frontend end-to-end.
+
+Done since the initial pass: **streaming chat** (SSE, `POST /v1/agents/{slug}/chat/stream`)
+and a **Redis-backed** rate limiter + daily token quota + login lockout, both with an
+in-process fallback so a missing/unreachable Redis never takes the API down.
 
 ## Known limitations
 
-- Rate limiter and usage tracker are **in-process** (single-instance only).
+- Rate limiter, quota, and login-lockout state is **Redis-backed when `REDIS_URL` is set
+  and reachable** (shared across instances); otherwise it degrades to **in-process**
+  (single-instance only) state automatically.
 - No refresh-token rotation; access token lifetime is 7 days for convenience.
 - Sub-agent slugs are globally unique (prefixed with the parent slug) so the
   unique constraint holds; resolution is parent-scoped for security.
