@@ -5,6 +5,8 @@ Routers are registered here as they are built (agents catalog → auth → chat)
 with a short timeout (used by deploy platforms as the health check).
 Every response carries an `X-Request-ID` (accepted or generated) which is
 also embedded in all log lines and error bodies.
+Unauthenticated routes are IP rate-limited (roadmap §5); shared pools are
+closed on shutdown (roadmap §7 graceful shutdown).
 """
 from __future__ import annotations
 
@@ -12,6 +14,7 @@ import asyncio
 import logging
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,15 +23,29 @@ from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core import db as core_db
+from app.core import redis as redis_mod
 from app.core.config import settings
 from app.core.logging import request_id_var, setup_logging
 from app.services.llm.base import LLMUnavailableError
+from app.services.rate_limiter import HybridRateLimiter
 
 # How long /health/ready waits for `SELECT 1` before reporting unready.
 READY_CHECK_TIMEOUT_SECONDS = 2.0
 
 setup_logging(settings.LOG_FORMAT)
 _request_logger = logging.getLogger("agenthub.http")
+
+# Per-IP limiter for unauthenticated routes (roadmap §5).
+_ip_limiter = HybridRateLimiter(settings.RATE_LIMIT_IP_PER_MIN)
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    yield
+    # Graceful shutdown (roadmap §7): in-flight requests finish first
+    # (Starlette awaits them before this runs), then pools close.
+    await redis_mod.close()
+    await core_db.engine.dispose()
 
 
 def create_app() -> FastAPI:
@@ -39,6 +56,7 @@ def create_app() -> FastAPI:
             "Agents are config/data, not code."
         ),
         version="0.1.0",
+        lifespan=_lifespan,
     )
 
     app.add_middleware(
@@ -48,6 +66,31 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def ip_rate_limit(request: Request, call_next):
+        """Per-IP limit on unauthenticated routes (roadmap §5).
+
+        Authenticated callers are governed by the per-user chat limiter
+        instead; health checks are always exempt.
+        """
+        if (
+            settings.RATE_LIMIT_IP_PER_MIN > 0
+            and "authorization" not in request.headers
+            and request.url.path not in ("/health", "/health/ready")
+        ):
+            client_ip = request.client.host if request.client else "unknown"
+            state = await _ip_limiter.hit(f"ip:{client_ip}")
+            if not state.allowed:
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Too many requests from this address."},
+                    headers={
+                        "Retry-After": str(max(state.reset_after, 1)),
+                        **state.headers(),
+                    },
+                )
+        return await call_next(request)
 
     @app.middleware("http")
     async def request_context(request: Request, call_next):

@@ -12,7 +12,7 @@ import pytest
 from app.core.config import settings
 from app.core.deps import rate_limiter as rate_limiter_dep
 from app.main import app
-from app.services.rate_limiter import RateLimiter
+from app.services.rate_limiter import HybridRateLimiter
 
 EMAIL = "filter@example.com"
 PASSWORD = "supersecret1"
@@ -107,7 +107,7 @@ async def _signup(client, slug: str = "doctor-physician") -> str:
 
 @pytest.fixture
 def tight_limiter():
-    limiter = RateLimiter(max_per_min=2)
+    limiter = HybridRateLimiter(max_per_min=2)
     # One instance for the whole test: a fresh limiter per request would
     # never accumulate hits and could never return 429.
     app.dependency_overrides[rate_limiter_dep] = lambda: limiter

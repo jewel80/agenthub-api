@@ -92,6 +92,33 @@ async def client(session_factory):
     app.dependency_overrides.clear()
 
 
+@pytest.fixture(autouse=True)
+def _isolate_stateful_singletons(monkeypatch):
+    """Per-test isolation for stateful components added in Stage 2.
+
+    - disable the per-IP middleware limiter (specific tests re-enable it)
+    - fresh login-guard, login rate limiter, stream counters, and token
+      quota each test
+    """
+    from app.api.routers import chat as chat_router
+    from app.services import login_guard as login_guard_mod
+    from app.services import rate_limiter as rate_limiter_mod
+
+    monkeypatch.setattr(settings, "RATE_LIMIT_IP_PER_MIN", 0)
+    monkeypatch.setattr(settings, "STREAMING_ENABLED", True)
+    login_guard_mod._guard = None
+    rate_limiter_mod._quota_limiter = None
+    rate_limiter_mod._login_limiter = None
+    rate_limiter_mod._llm_semaphore = None
+    chat_router._stream_counts.clear()
+    yield
+    login_guard_mod._guard = None
+    rate_limiter_mod._quota_limiter = None
+    rate_limiter_mod._login_limiter = None
+    rate_limiter_mod._llm_semaphore = None
+    chat_router._stream_counts.clear()
+
+
 @pytest_asyncio.fixture
 async def seeded(session_factory):
     """Two main agents (A=Doctor, B=Lawyer) for isolation tests."""
