@@ -6,15 +6,15 @@ import uuid
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.core.db import get_db
+from app.core.db import AsyncSessionLocal, get_db
 from app.core.security import decode_access_token
 from app.models.user import User
 from app.repositories import user_repo
 from app.services.llm import get_llm_provider
 from app.services.llm.base import LLMProvider
-from app.services.rate_limiter import RateLimiter, get_rate_limiter
+from app.services.rate_limiter import HybridRateLimiter, get_rate_limiter
 
 # Bearer-token scheme. tokenUrl is informational (login is JSON); the scheme
 # is only used to extract the bearer token from the Authorization header.
@@ -26,9 +26,19 @@ def llm_provider() -> LLMProvider:
     return get_llm_provider()
 
 
-def rate_limiter() -> RateLimiter:
+def rate_limiter() -> HybridRateLimiter:
     """Inject the rate limiter (cached singleton; overridable in tests)."""
     return get_rate_limiter()
+
+
+def stream_db_factory() -> async_sessionmaker:
+    """Session factory for streaming persistence (overridable in tests).
+
+    The streaming endpoint must not hold the request's DB session open for
+    the stream duration; it writes the assistant turn in short dedicated
+    sessions from this factory.
+    """
+    return AsyncSessionLocal
 
 
 async def get_current_user(

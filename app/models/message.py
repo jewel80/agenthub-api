@@ -42,6 +42,12 @@ class Message(Base):
     )
     role: Mapped[str] = mapped_column(String(16))  # "user" | "assistant"
     content: Mapped[str] = mapped_column(Text)
+    # Turn lifecycle (roadmap §3.3): non-streaming turns are always
+    # 'complete'; streaming turns may end 'interrupted' (client disconnect)
+    # or 'failed' (LLM error mid-stream).
+    status: Mapped[str] = mapped_column(
+        String(16), default="complete", server_default="complete"
+    )
     # Monotonic ordering key. Postgres `now()` is transaction-start time, so a
     # user turn and its assistant reply committed in one transaction share a
     # `created_at`; `seq` (identity) is the authoritative turn order.
