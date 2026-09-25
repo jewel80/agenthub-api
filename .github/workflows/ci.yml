@@ -23,6 +23,18 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # Redis for the roadmap §5 tests (rate limiting/quotas); mapped to
+      # 6380 to match TEST_REDIS_URL in tests/test_redis_limiter.py, which
+      # skips its Redis-backed tests when nothing answers there (M1).
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       DATABASE_URL: postgresql+asyncpg://agenthub:agenthub@localhost:5432/agenthub_test
       TEST_DATABASE_URL: postgresql+asyncpg://agenthub:agenthub@localhost:5432/agenthub_test
