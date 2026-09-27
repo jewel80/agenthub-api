@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.agent import Agent
 from app.models.user import User
-from app.repositories import user_repo
+from app.repositories import outbox_repo, user_repo
 from app.schemas.auth import TokenOut
 
 
@@ -28,6 +28,13 @@ async def signup(
                 email=email,
                 password_hash=hash_password(password),
                 agent_id=agent.id,
+            )
+            # Same transaction as the user row (scale-doc §3 point 2) — no
+            # PII in the payload (see docs/PROGRESS.md M3 §3 Decisions).
+            await outbox_repo.add_event(
+                db,
+                event_type="user.signed_up",
+                payload={"user_id": str(user.id), "agent_id": str(agent.id)},
             )
             await db.commit()
         except IntegrityError:

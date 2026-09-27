@@ -75,6 +75,15 @@ class Settings(BaseSettings):
     # and skips caching; it must never crash or take the API down.
     REDIS_URL: str = ""  # e.g. redis://127.0.0.1:6380/0 (see .env.example)
 
+    # --- Transactional outbox (scale §3) ---
+    # Off => no event rows are written and the relay/consumer loops are
+    # no-ops (falls back to current behavior: no side-channel events).
+    OUTBOX_ENABLED: bool = True
+    OUTBOX_RELAY_INTERVAL_SECONDS: float = 1.0
+    OUTBOX_BATCH_SIZE: int = 100
+    OUTBOX_MAX_ATTEMPTS: int = 5  # after this many failed publishes -> DLQ
+    OUTBOX_RETENTION_DAYS: int = 7  # cleanup job deletes published rows older than this
+
     # --- Multi-layer caching (scale §2) ---
     CACHE_ENABLED: bool = True
     CACHE_L1_ENABLED: bool = True

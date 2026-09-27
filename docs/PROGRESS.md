@@ -2,7 +2,7 @@
 
 ## Current milestone
 M3 — Scale doc "Now" items. §2 `CacheService` ✅ complete, §1 read/write
-split ✅ complete. Next: §3 outbox → §5.1 `pg_trgm`.
+split ✅ complete, §3 transactional outbox ✅ complete. Next: §5.1 `pg_trgm`.
 
 ## How this was verified (M0 audit, 2026-09-25/26)
 
@@ -116,6 +116,12 @@ locally only because no local Redis is running (they run in CI now).
 | §1.2.5 | Read-your-writes (Redis flag, TTL = `READ_YOUR_WRITES_WINDOW_SECONDS`; Redis down → writer) | ✅ verified against real Redis | this session | `test_read_your_writes_marks_and_expires`, `test_read_your_writes_fails_safe_when_redis_down`, `test_read_your_writes_moot_without_a_replica` | `mark_read_your_writes` called after both the user-turn and assistant-turn commits in both the non-streaming and streaming chat paths (`app/services/chat_engine.py`); a no-op while no replica is configured (nothing to protect against) |
 | §1.2.6 | Replica lag guard (checks every 5s, marks unhealthy above `DB_REPLICA_MAX_LAG_SECONDS` or on error) | ✅ implemented; ⛔ not exercised against a real replica (none exists in this environment) | this session | `test_unhealthy_replica_routes_to_primary` (sentinel-based routing-logic test) | `run_replica_lag_guard()` wired into `app/main.py` lifespan; a no-op loop when no replica is configured (the default) — flagged under Needs human action for real-replica validation |
 | §1.3 | "Replica disabled ⇒ every endpoint behaves exactly as before" | ✅ verified | this session | full suite (127 passed) + live smoke test | Catalog/history endpoints hit live via `uvicorn` (mock LLM) after the change: `/agents` 200, `/agents/{slug}` 200, chat write 200, history immediately shows both turns |
+| §3 pt.1 | `outbox_events` table + partial index for the poll query | ✅ verified | this session | `test_event_written_iff_transaction_commits`, `test_claim_batch_locks_unpublished_oldest_first` | `app/models/outbox.py`; added a `seq` identity column beyond the doc's literal schema — see Decisions (created_at collides within one transaction, same as `messages.seq`) |
+| §3 pt.2 | Event written in the same transaction as the business change | ✅ verified | this session | `test_event_written_iff_transaction_commits` (rollback ⇒ never written; commit ⇒ durably written) | Wired into `auth_service.signup` (`user.signed_up`), `chat_engine.run_turn`/`_persist_streamed_turn` (`chat.completed`), `seed_agents.seed` (`agent.updated`) |
+| §3 pt.3 | Relay worker: `FOR UPDATE SKIP LOCKED` batch → Redis Streams → mark published | ✅ verified against real Redis | this session | `test_relay_publishes_exactly_once_per_event`, `test_claim_batch_locks_unpublished_oldest_first` | `app/services/outbox_relay.py`; wired into `app/main.py` lifespan as a background task, polls every `OUTBOX_RELAY_INTERVAL_SECONDS` |
+| §3 pt.4 | Idempotent consumers (dedupe on event id); retry with backoff; dead-letter + alert after `OUTBOX_MAX_ATTEMPTS` | ✅ verified against real Redis | this session | `test_consumer_is_idempotent_on_a_duplicate_delivery`, `test_consumer_leaves_failed_handler_unacked_for_redelivery`, `test_relay_moves_to_dlq_after_max_attempts` | `app/services/outbox_consumer.py` (consumer-group read + `SET NX` dedupe) + `app/services/outbox_relay.py` (DLQ move + `logger.error` as the "alert" — no PagerDuty/Sentry yet, that's roadmap §9); one real consumer built (`chat.completed` → durable usage counter, `app/services/outbox_handlers.py`) — see Decisions re: why not one per event type |
+| §3 pt.5 | Initial events: `user.signed_up`, `chat.completed`, `message.feedback`, `agent.updated` | ✅ 3 of 4 wired; 🕒 `message.feedback` deferred | this session | — | No feedback endpoint exists in this API yet — nothing to emit the event from; not fabricated. `agent.updated` is emitted but cache invalidation stays synchronous in the pipeline (see Decisions) |
+| §3 pt.6 | Cleanup job: delete published events older than the retention window | ✅ verified | this session | `test_cleanup_deletes_only_old_published_events` | `scripts/cleanup_outbox.py`; no scheduler wired up to run it periodically yet (none exists in this project) — flagged under Needs human action |
 
 ## Corrections (found once real Redis became reachable)
 
@@ -183,6 +189,62 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
    slow command still can't stall a request). Re-ran the full suite 3x
    clean (127 passed) plus the stampede test in isolation 8x after the fix.
 
+## Corrections (found while building/live-testing M3 §3 outbox)
+
+Two more real bugs surfaced while building and live-smoke-testing the
+outbox relay/consumer against real Redis — the app hung on the very first
+signup/chat request during the live smoke test, which led to both:
+
+5. **`call()` treated *any* `RedisError` as a full outage, including a
+   perfectly benign `ResponseError`** (e.g. `BUSYGROUP Consumer Group name
+   already exists` from a redundant `XGROUP CREATE`). Since `ResponseError`
+   means "the server answered, this specific command failed for a domain
+   reason" — not "Redis is unreachable" — this was needlessly tripping the
+   shared `_unavailable` circuit breaker for *every* other Redis-backed
+   feature (cache, rate limiting, read-your-writes) whenever the consumer
+   loop made its second pass. Fixed in `app/core/redis.py::call()` to only
+   trip the breaker on a real connection/timeout error, not a
+   `ResponseError`; also made the consumer only call `XGROUP CREATE` once
+   per stream per process instead of every poll (`_groups_ensured`), so the
+   expected `BUSYGROUP` response stops happening on every pass regardless.
+6. **`_unavailable` had no recovery path at all — a much bigger, pre-existing
+   bug this exposed.** Once *anything* set `_unavailable = True`,
+   `get_redis()` refused to hand out a client forever after: `if
+   _unavailable: return None`, with nothing else in the module ever
+   retrying to notice Redis came back. Combined with bug 5 above (which
+   *shouldn't* have tripped the breaker at all, but did), the consumer's
+   very first redundant group-creation call permanently disabled Redis for
+   the whole process — not "degrades until Redis recovers" as the module's
+   own docstring promised, but "degrades forever after the first hiccup,
+   restart required." This affected every Redis-backed feature in the app,
+   not just the outbox, and predates this session; M3 §1/§2's own tests
+   never caught it because each test resets `_unavailable = False` directly
+   in its fixture teardown rather than exercising real recovery. Fixed with
+   a half-open-circuit-breaker pattern: `_unavailable_since` + a 5s
+   cooldown, after which exactly one retry attempt is let through
+   (`_should_skip_attempt()`); a success resets the breaker, a repeat
+   failure restarts the cooldown. Verified with a standalone script
+   (forced-unavailable → simulated cooldown elapsed → `ping()` succeeds and
+   clears the flag).
+7. **Root cause of the actual hang**: `outbox_consumer.py`'s `XREADGROUP
+   ... BLOCK 2000` asked Redis to hold the connection for up to 2000ms
+   waiting for new stream entries, but the shared client's own command
+   socket timeout is 200ms — so the *client* aborted every blocking read
+   as a timeout well before Redis could honor the block, tripping the
+   breaker (bug 5) every single poll, and — with no sleep on the "nothing
+   read" path in `run_consumer_loop` — retrying immediately in a tight
+   loop. That busy-loop (compounded by bug 6 meaning it could never
+   recover) is what hung the live smoke test's very first request: the
+   consumer task starved the event loop of turns badly enough that the
+   HTTP request handling coroutine never got to run. Fixed by dropping
+   `_BLOCK_MS` to 50 (safely under the 200ms command timeout) and adding an
+   explicit `_IDLE_SLEEP_SECONDS` (0.5s) pause in `run_consumer_loop` when a
+   poll finds nothing — the block no longer doubles as the pacing
+   mechanism. Re-verified live end to end (mock LLM, real Redis): signup,
+   two chat turns, and the durable `chat.completed` usage counter all
+   completed in 16-112ms with no errors in the log beyond the expected
+   one-time `BUSYGROUP` warning.
+
 ## Decisions & assumptions (M3 §2)
 
 - **Serialization is stdlib `json` + Pydantic, not `orjson`/`msgpack`.** The
@@ -247,6 +309,54 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   no-op loop while no replica is configured (the default), so this doesn't
   block anything; flagged under Needs human action for whoever turns on a
   real replica.
+
+## Decisions & assumptions (M3 §3)
+
+- **`seq` (identity column) added beyond the doc's literal schema.** The
+  doc's table definition doesn't list one, but `created_at` collides for
+  events written in the same transaction (Postgres `now()` is
+  transaction-start time — identical rationale to `messages.seq`, already
+  established in this codebase). Caught via a genuinely flaky test
+  (`test_claim_batch_locks_unpublished_oldest_first`, order `[2, 1]` instead
+  of `[1, 2]` on some runs) before it could reach the relay's real poll
+  query. The partial index is on `seq` instead of `(created_at, id)`.
+- **In-process background tasks (`asyncio.create_task`), not arq/Celery.**
+  The doc says "Consumers (arq/Celery workers)" — read here as an example,
+  not a hard requirement. Introducing a task-queue framework and a
+  separate worker deployment is a bigger step than this session's "Now"
+  scope justifies for one consumer; the relay/consumer loops follow the
+  exact pattern already used for cache invalidation (§2) and the replica
+  lag guard (§1). Revisit once volume or handler count justifies a
+  dedicated worker fleet — the Streams-based interface underneath doesn't
+  change either way.
+- **`message.feedback` is not wired up.** No feedback endpoint exists in
+  this API — there is nothing to emit the event from. Not fabricated just
+  to check a box; revisit when/if a feedback endpoint is built.
+- **`agent.updated` is emitted, but cache invalidation stays synchronous
+  in `seed_agents.py`, not routed through the outbox consumer.** The seed
+  pipeline is a rare, manual admin operation, not a hot request path — the
+  "must not slow down or break the request" motivation for going async
+  doesn't apply here, and correct-immediately is strictly better than
+  eventually-consistent for a rarely-run admin script. The event is still
+  emitted (in the same transaction as the upserts) so a *future* consumer
+  (e.g. an audit log, or a notification to other services) has something
+  to subscribe to without needing another code change.
+- **`user.signed_up`'s payload omits the email** (only `user_id`/`agent_id`)
+  — no consumer needs it yet (no welcome-email service exists), and
+  Redis Streams don't necessarily share the primary DB's retention/access
+  posture, so minimizing PII there by default seemed the safer call than
+  including it "just in case."
+- **Only one real consumer built (`chat.completed` → durable usage
+  counter), not one per initial event type.** It's enough to prove and
+  test the whole idempotent-consumer pattern honestly; a consumer with no
+  real downstream effect (nothing yet reads `user.signed_up`/
+  `agent.updated`) would just be inert scaffolding. The relay itself
+  (publish to the stream) has independent value and is fully tested
+  regardless of whether a consumer exists yet for a given event type.
+- **No scheduler wired up for `scripts/cleanup_outbox.py`.** No cron/task
+  scheduler infrastructure exists in this project yet; the script is ready
+  to be invoked by whatever gets added later (a platform cron job, a CI
+  scheduled workflow, etc.) — flagged under Needs human action.
 
 ## Out-of-scope findings
 
@@ -313,6 +423,13 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   in any real deployment: provision the replica, point `DATABASE_READ_URL`
   at it, and re-verify `run_replica_lag_guard()` against real lag (e.g. by
   briefly pausing replication) rather than trusting the unit test alone.
+- 📄 **No scheduler for `scripts/cleanup_outbox.py`** (scale-doc §3 point
+  6) — no cron/scheduled-task infra exists in this project yet. The script
+  is ready; wire it into whatever platform-level scheduler gets adopted.
+- 📄 **Consider a real worker fleet (arq/Celery) once outbox volume/handler
+  count grows** — see M3 §3 Decisions for why in-process `asyncio` tasks
+  were used instead for now; the Streams-based interface is unaffected
+  either way if this changes later.
 - 📄 Everything under fix-doc §8 / roadmap "What I cannot do in code":
   managed Postgres failover, PgBouncer deployment, CDN/WAF, pen test, DR
   restore drill, secret-manager rotation, production load test, staging
@@ -380,4 +497,20 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   burst — see "Corrections" above). Full suite: 127 passed, 0 skipped,
   reproduced clean 3x in a row. Live-verified end to end (mock LLM):
   catalog reads, a chat write, and history showing both turns immediately
-  after. Next: §3 outbox → §5.1 `pg_trgm`.
+  after.
+  **§3 Transactional outbox — ✅ complete this session**: `outbox_events`
+  table (with a `seq` identity column, not in the doc's literal schema —
+  see Decisions), events written in the same transaction as
+  `user.signed_up`/`chat.completed`/`agent.updated`, a relay worker
+  (`FOR UPDATE SKIP LOCKED` → Redis Streams → mark published, with
+  dead-lettering after `OUTBOX_MAX_ATTEMPTS`), and one real idempotent
+  consumer (`chat.completed` → a durable, cross-instance usage counter,
+  addressing a limitation `observability.py` had already flagged). While
+  live-smoke-testing this, the app hung on the very first request — traced
+  to a genuine chain of 3 bugs (a `ResponseError` wrongly tripping the
+  Redis circuit breaker, that breaker having no recovery path at all once
+  tripped, and a consumer `BLOCK` duration exceeding the client's own
+  command timeout) — all fixed and documented in "Corrections" above, with
+  a clean live re-run afterward (signup + 2 chat turns + durable counter,
+  16-112ms each, no errors). Full suite: 136 passed, 0 skipped, reproduced
+  clean 3x. Next: §5.1 `pg_trgm`.

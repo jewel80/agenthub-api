@@ -32,7 +32,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 TEST_DB_URL = os.environ.get("TEST_DATABASE_URL") or settings.TEST_DATABASE_URL
 
 # Tables truncated between tests (CASCADE resolves FK order).
-_ALL_TABLES = ("messages", "users", "agents")
+_ALL_TABLES = ("messages", "users", "agents", "outbox_events")
 
 
 def _test_db_error(test_db_url: str, main_db_url: str) -> str | None:

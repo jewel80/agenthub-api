@@ -36,7 +36,7 @@ from app.core.db import mark_read_your_writes
 from app.core.deps import require_agent_scope
 from app.models.agent import Agent
 from app.models.user import User
-from app.repositories import agent_repo, message_repo
+from app.repositories import agent_repo, message_repo, outbox_repo
 from app.services.agent_service import get_active_main_agent_or_404
 from app.services.llm.base import (
     LLMMessage,
@@ -190,6 +190,18 @@ async def run_turn(
         sub_agent_id=sub_id,
         role="assistant",
         content=result.text,
+    )
+    # Same transaction as the assistant turn (scale-doc §3 point 2).
+    await outbox_repo.add_event(
+        db,
+        event_type="chat.completed",
+        payload={
+            "user_id": str(user.id),
+            "agent_slug": main.slug,
+            "sub_agent_slug": target.slug if target.id != main.id else None,
+            "input_tokens": result.usage.input_tokens,
+            "output_tokens": result.usage.output_tokens,
+        },
     )
     await db.commit()
     await mark_read_your_writes(user.id)
@@ -448,6 +460,25 @@ async def _persist_streamed_turn(
             status=final_status,
         )
         session.add(msg)
+        if final_status == "complete":
+            # Same transaction as the assistant turn (scale-doc §3 point 2);
+            # only for genuinely completed turns, matching the event name —
+            # interrupted/failed streams don't represent a completed chat.
+            await outbox_repo.add_event(
+                session,
+                event_type="chat.completed",
+                payload={
+                    "user_id": str(prepared.user.id),
+                    "agent_slug": prepared.main.slug,
+                    "sub_agent_slug": (
+                        prepared.target.slug
+                        if prepared.target.id != prepared.main.id
+                        else None
+                    ),
+                    "input_tokens": usage.input_tokens if usage else 0,
+                    "output_tokens": usage.output_tokens if usage else 0,
+                },
+            )
         await session.commit()
     await mark_read_your_writes(prepared.user.id)
 

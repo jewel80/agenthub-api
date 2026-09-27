@@ -249,7 +249,8 @@ STORAGE_SECRET_ACCESS_KEY=<provided separately>
       — Implemented: this session — `app/services/cache.py`, `tests/test_cache_service.py` (hit/miss/invalidate, negative caching, 50-concurrent stampede → 1 load, SWR verified via a fakeredis smoke check — see `docs/PROGRESS.md`)
 - [x] Redis outage → API still serves correct data (tested)
       — Implemented: this session — `tests/test_cache_service.py::test_redis_down_still_returns_correct_data`; live-verified `/agents`, `/agents/{slug}`, `/industries` (see `docs/PROGRESS.md`)
-- [ ] Outbox: no lost events, idempotent consumers, dead-letter + alert
+- [x] Outbox: no lost events, idempotent consumers, dead-letter + alert
+      — Implemented: this session — `app/models/outbox.py`, `app/repositories/outbox_repo.py`, `app/services/outbox_relay.py`, `app/services/outbox_consumer.py`, `tests/test_outbox.py`. Events: `user.signed_up`, `chat.completed`, `agent.updated` (see doc #3 audit table for per-item detail and what's deliberately deferred)
 - [ ] No analytics queries on the primary
 - [ ] Catalog search in SQL with a trigram index
 - [ ] (If enabled) RAG retrieval is always filtered by `agent_id`; files in private object storage via pre-signed URLs

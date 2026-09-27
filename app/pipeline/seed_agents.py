@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.db import AsyncSessionLocal
 from app.pipeline.templates import MAIN_AGENT_TEMPLATE, SUB_AGENT_TEMPLATE
-from app.repositories import agent_repo
+from app.repositories import agent_repo, outbox_repo
 from app.services import cache as cache_service
 
 # The 5 main agents we explicitly feature/verify (distinct personas). This is a
@@ -167,6 +167,13 @@ async def seed(
             )
             counts["sub"] += 1
 
+    # One aggregate event per run (same transaction as the upserts,
+    # scale-doc §3 point 2), not one per row — mirrors the single
+    # cache_service.invalidate() call below rather than causing per-row
+    # event/version churn for a bulk operation.
+    await outbox_repo.add_event(
+        db, event_type="agent.updated", payload={"counts": counts}
+    )
     await db.commit()
     return counts
 

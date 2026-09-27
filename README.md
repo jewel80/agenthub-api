@@ -63,6 +63,11 @@ a `postgres:16` service container automatically.
 | `DB_READ_REPLICA_ENABLED` | no | `false` | Shipped disabled — flip on once a real replica exists |
 | `DB_REPLICA_MAX_LAG_SECONDS` | no | `2` | Replica considered unhealthy above this lag; reads fail over to the primary |
 | `READ_YOUR_WRITES_WINDOW_SECONDS` | no | `5` | How long a user's reads stick to the writer after they write (needs `REDIS_URL` once a replica is enabled) |
+| `OUTBOX_ENABLED` | no | `true` | Transactional outbox (scale §3); `false` skips event writes and the relay/consumer loops entirely |
+| `OUTBOX_RELAY_INTERVAL_SECONDS` | no | `1.0` | How often the relay worker polls for unpublished events |
+| `OUTBOX_BATCH_SIZE` | no | `100` | Max unpublished rows claimed per relay pass |
+| `OUTBOX_MAX_ATTEMPTS` | no | `5` | Failed publishes before an event moves to its dead-letter stream |
+| `OUTBOX_RETENTION_DAYS` | no | `7` | `python -m scripts.cleanup_outbox` deletes published events older than this |
 | `JWT_SECRET` | yes (non-dev) | dev placeholder | ≥ 32 chars, not the dev default; generate: `python -c "import secrets;print(secrets.token_urlsafe(48))"` |
 | `JWT_ALG` | no | `HS256` | |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | no | `10080` (7 days) | |
@@ -119,6 +124,8 @@ a `postgres:16` service container automatically.
 **How to verify the catalog cache locally:** `curl -i http://localhost:8000/agents` → note the `ETag`; repeat with `-H "If-None-Match: <etag>"` → `304 Not Modified`. Re-run `python -m app.pipeline.seed_agents` after editing the CSV and the very next `GET /agents` reflects the change (cache invalidated) with a new `ETag`. An authenticated endpoint (e.g. `GET /me`) always answers `Cache-Control: private, no-store`.
 
 **How to verify the read/write split locally:** the catalog (`/agents`, `/agents/{slug}`, `/industries`) and `GET history` now read via a read-only DB session (`app/core/db.py::get_read_db`) — with `DATABASE_READ_URL` unset (the shipped default), this targets the primary but still runs `SET TRANSACTION READ ONLY`, so those endpoints behave exactly as before. To see the enforcement itself: `psql` won't help (it's per-session), but `pytest tests/test_read_write_split.py -k reader_session_rejects` shows a write through that session raising a Postgres read-only error. Read-your-writes only matters once `DB_READ_REPLICA_ENABLED=true` and `DATABASE_READ_URL` point at a real streaming replica.
+
+**How to verify the transactional outbox locally:** sign up or send a chat message, then check the durable, cross-instance usage counter the `chat.completed` consumer maintains: `redis-cli -u redis://127.0.0.1:6380/0 GET agenthub:development:usage:<agent-slug>` should increment per chat turn (compare against the in-process `GET /meta/usage` count — see "Known limitations"). To see an event actually queued before it's relayed, stop Redis, send a chat message, then `SELECT event_type, attempts, published_at FROM outbox_events ORDER BY seq DESC LIMIT 5;` against the dev DB — the row is there with `published_at` still `NULL`; start Redis back up and it gets published within `OUTBOX_RELAY_INTERVAL_SECONDS`.
 
 ---
 
@@ -259,6 +266,11 @@ in-process fallback so a missing/unreachable Redis never takes the API down.
   unique constraint holds; resolution is parent-scoped for security.
 - Supabase transaction-pooler prepared-statement caveat is handled, but if you
   switch poolers, double-check `core/db.py` connect args.
+- `GET /meta/usage` still reads the in-process `UsageTracker` (single-instance,
+  resets on restart). A durable, cross-instance per-agent counter now exists
+  in Redis (`agenthub:{env}:usage:{agent_slug}`, kept via the `chat.completed`
+  outbox consumer) but `/meta/usage` itself hasn't been switched to read it —
+  see `docs/PROGRESS.md` M3 §3 Decisions.
 
 ## AI-assisted development disclosure
 

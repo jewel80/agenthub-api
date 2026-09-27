@@ -27,6 +27,7 @@ from app.core import redis as redis_mod
 from app.core.config import settings
 from app.core.logging import request_id_var, setup_logging
 from app.services import cache as cache_service
+from app.services import outbox_consumer, outbox_handlers, outbox_relay
 from app.services.llm.base import LLMUnavailableError
 from app.services.rate_limiter import HybridRateLimiter
 
@@ -42,21 +43,32 @@ _ip_limiter = HybridRateLimiter(settings.RATE_LIMIT_IP_PER_MIN)
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
-    # Cross-instance L1 cache invalidation (scale-doc §2.3.10); a no-op loop
-    # when Redis isn't configured/reachable, never a startup failure.
-    listener_task = asyncio.create_task(cache_service.run_invalidation_listener())
-    # Replica lag guard (scale-doc §1.2.6); returns immediately (no-op) when
-    # no replica is configured — the default here.
-    lag_guard_task = asyncio.create_task(core_db.run_replica_lag_guard())
+    # Each of these is a no-op loop (returns immediately, or retries
+    # quietly) when its dependency isn't configured/reachable — none of
+    # them can fail app startup.
+    background_tasks = [
+        # Cross-instance L1 cache invalidation (scale-doc §2.3.10).
+        asyncio.create_task(cache_service.run_invalidation_listener()),
+        # Replica lag guard (scale-doc §1.2.6); no-op with no replica
+        # configured — the default here.
+        asyncio.create_task(core_db.run_replica_lag_guard()),
+        # Transactional outbox relay + the chat.completed consumer
+        # (scale-doc §3); no-op when OUTBOX_ENABLED=false.
+        asyncio.create_task(outbox_relay.run_relay_loop(core_db.AsyncSessionLocal)),
+        asyncio.create_task(
+            outbox_consumer.run_consumer_loop(
+                "chat.completed", outbox_handlers.handle_chat_completed
+            )
+        ),
+    ]
     yield
     # Graceful shutdown (roadmap §7): in-flight requests finish first
     # (Starlette awaits them before this runs), then pools close.
-    listener_task.cancel()
-    lag_guard_task.cancel()
-    with suppress(asyncio.CancelledError):
-        await listener_task
-    with suppress(asyncio.CancelledError):
-        await lag_guard_task
+    for task in background_tasks:
+        task.cancel()
+    for task in background_tasks:
+        with suppress(asyncio.CancelledError):
+            await task
     await redis_mod.close()
     await core_db.engine.dispose()
     await core_db.reader_engine.dispose()
