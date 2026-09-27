@@ -347,15 +347,25 @@ All values are read through `app/core/config.py`. **Real values are provided sep
 ## 18. Definition of Done — Production Grade
 
 - [ ] Streaming endpoint live; time-to-first-token p95 < 2 s; disconnects and errors handled and persisted correctly
+      — Partial: endpoint + disconnect/error persistence implemented & tested (`tests/test_streaming.py`, this session); TTFT p95 not measured — no load test run yet (needs human action)
 - [ ] Prompt caching on; cache hit rate visible on the dashboard
+      — Partial: caching implemented (this session), `LLM_PROMPT_CACHE_ENABLED` toggle, usage fields threaded through; no dashboard/metric surfaces hit rate yet (roadmap §9, not started)
 - [ ] Redis cache for catalog/agent config with invalidation; the API still works when Redis is down
-- [ ] Redis rate limiting + daily token quota; `429` with standard headers
+      — Not started as of M2; this is scale-doc §2 (`CacheService`), scheduled next as M3 step 1
+- [x] Redis rate limiting + daily token quota; `429` with standard headers
+      — Implemented: this session — `tests/test_redis_limiter.py`, `tests/test_quota_and_lockout.py`
 - [ ] 2+ stateless instances running behind a load balancer with no behavior difference
 - [ ] `/v1` versioning, RFC 9457 errors, cursor pagination, idempotency keys
+      — Partial: `/v1/agents/{slug}/chat/stream` exists (this session); full `/v1` versioning + RFC 9457 + pagination is roadmap §8 (M4), not started
 - [ ] Structured logs + request IDs + tracing + metrics + Sentry + alerts configured
+      — Partial: request IDs + structured logs done (`16eaa54`, fix-doc F15); tracing/metrics/Sentry/alerts are roadmap §9 (M5), not started
 - [ ] Refresh tokens, logout/revocation, email verification, password reset
+      — Design-only so far (`e28f8f4`); implementation is roadmap §10 (M5)
 - [ ] PgBouncer, backups with a tested restore, zero-downtime migrations
+      — Partial: app-side PgBouncer connect-arg support exists (`DB_USE_PGBOUNCER`, `core/db.py`); no deployed PgBouncer/backup/restore drill (infra, needs human action)
 - [ ] CI with tests on Postgres + Redis, security scans, staging → production pipeline
+      — Partial: CI runs tests on Postgres + Redis service containers (this session); no security scans or staging pipeline yet (roadmap §12, M5)
 - [ ] Load test passed at the target concurrency; results recorded
 - [ ] Data export/deletion, retention job, AI disclaimers for high-risk agents
-- [ ] No credentials anywhere in the repo
+- [x] No credentials anywhere in the repo
+      — Implemented: M0 audit — `git grep` re-run clean this session (see `docs/PROGRESS.md`)

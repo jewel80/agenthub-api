@@ -165,7 +165,29 @@ locally only because no local Redis is running (they run in CI now).
   by the prior session; this session verified them, found and fixed 2 real
   gaps (login rate limit unwired, concurrency cap not applied to streams),
   added the missing tests, and committed everything in atomic commits.
+- **Safety hardening (this session, before M3)** — added
+  `app/core/db_safety.py::refuse_if_main_db` (+ `tests/test_db_safety_guard.py`)
+  so tests and migration-check scripts refuse to run whenever their target
+  database name equals `DATABASE_URL`'s — the exact class of mistake behind
+  the M0 incident above. `tests/conftest.py` and the new
+  `scripts/verify_migration_cycle.py` (safe replacement for the ad hoc
+  downgrade/upgrade cycle) both use it. `alembic/env.py` now prints the
+  target database name (never credentials) before every migration command.
+  Codified as `docs/CLAUDE_CODE_INSTRUCTIONS.md` §2.10.
+- **Docs-update rule (this session, before M3)** — added a mandatory
+  per-section docs checklist to `docs/CLAUDE_CODE_INSTRUCTIONS.md` §3
+  (PROGRESS.md, source-doc DoD checkboxes, README, `.env.example`,
+  runbooks — all in the same commit as the code). Applied retroactively to
+  M0–M2: ticked the fix-doc §7 DoD (all 8 items, with
+  "Implemented: `<commit>` — `<file/test>`" notes) and the roadmap §18 DoD
+  (ticked only the 2 items that are actually fully done — Redis rate
+  limiting/quota, no credentials in repo — and added "Partial:" notes on
+  the others so nothing is claimed done that isn't). Refreshed README's env
+  var table (was missing ~16 vars already present in `.env.example`) and
+  API reference (missing the streaming endpoint), and added
+  `docs/runbooks/redis-degradation.md` for the two failure modes M1/M2
+  introduced (Redis down, login-lockout stuck state). `.env.example` was
+  already complete for M0–M2 — no changes needed there.
 - **M3 (Scale doc "Now" items: `CacheService`, read/write split, outbox,
-  `pg_trgm`)** — not started. This is a substantially larger body of work
-  (a new caching layer, a second DB engine/session factory, a background
-  relay worker, new tables) than M0–M2 combined. Proceeding next.
+  `pg_trgm`)** — starting now, one section at a time per §10's order:
+  §2 `CacheService` → §1 read/write split → §3 outbox → §5.1 `pg_trgm`.

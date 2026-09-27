@@ -55,17 +55,32 @@ a `postgres:16` service container automatically.
 |---|---|---|---|
 | `ENVIRONMENT` | no | `development` | `development` \| `staging` \| `production` |
 | `DATABASE_URL` | yes | — | PostgreSQL only: `postgresql+asyncpg://…` |
-| `TEST_DATABASE_URL` | tests | — | Disposable test DB (tables truncated) |
+| `TEST_DATABASE_URL` | tests | — | Disposable test DB (tables truncated); must never equal `DATABASE_URL` — enforced at test session start ([`app/core/db_safety.py`](app/core/db_safety.py)) |
 | `DB_SSL_MODE` | no | `require` | `disable` for local dev without SSL |
 | `DB_USE_PGBOUNCER` | no | `false` | `true` behind a transaction-mode pooler |
 | `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` / `DB_POOL_TIMEOUT` | no | `10` / `5` / `10` | Connection pool tuning |
 | `JWT_SECRET` | yes (non-dev) | dev placeholder | ≥ 32 chars, not the dev default; generate: `python -c "import secrets;print(secrets.token_urlsafe(48))"` |
-| `LLM_PROVIDER` | no | `anthropic` | `anthropic` \| `mock` |
-| `ANTHROPIC_API_KEY` | if `anthropic` | — | |
+| `JWT_ALG` | no | `HS256` | |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | no | `10080` (7 days) | |
+| `LLM_PROVIDER` | no | `anthropic` | `anthropic` \| `mock` (no API key needed) |
+| `ANTHROPIC_API_KEY` | if `anthropic` | — | Direct Anthropic (`x-api-key`) |
+| `ANTHROPIC_AUTH_TOKEN` / `ANTHROPIC_BASE_URL` | no | — | Bearer auth + base URL for an Anthropic-compatible gateway (e.g. z.ai), instead of a direct API key |
 | `ANTHROPIC_MODEL` | no | `claude-haiku-4-5` | |
 | `LLM_TIMEOUT_SECONDS` | no | `45` | Client timeout for LLM calls |
+| `LLM_PROMPT_CACHE_ENABLED` | no | `true` | Anthropic prompt caching (system prompt + history prefix) |
 | `CORS_ORIGINS` | no | `http://localhost:3000` | Comma-separated frontend URLs |
+| `STREAMING_ENABLED` | no | `true` | SSE streaming endpoint toggle |
+| `STREAM_MAX_SECONDS` | no | `120` | Max duration of one SSE stream |
+| `MAX_CONCURRENT_STREAMS_PER_USER` | no | `2` | Per-user concurrent stream cap; `0` disables |
+| `REDIS_URL` | no | — | Optional at runtime: empty/unreachable → in-memory rate limiting, no caching, never crashes. Local dev: `docker compose -f docker-compose.dev.yml up -d` (host port `6380`) |
 | `RATE_LIMIT_PER_MIN` | no | `20` | Per-user chat cap; `0` disables |
+| `RATE_LIMIT_IP_PER_MIN` | no | `60` | Per-IP cap on unauthenticated routes; `0` disables |
+| `LOGIN_RATE_LIMIT_PER_MIN` | no | `10` | Per (email, agent) login attempt cap |
+| `LOGIN_MAX_FAILURES` | no | `5` | Failed logins before exponential lockout |
+| `DAILY_TOKEN_QUOTA_DEFAULT` | no | `200000` | Per-user daily LLM token quota; `0` disables |
+| `GLOBAL_LLM_CONCURRENCY` | no | `10` | Global in-flight LLM call cap; `0` disables |
+| `ADMIN_TOKEN` | no | — | Protects `/meta/*` in production (`X-Admin-Token` header); empty in prod → 404 |
+| `LOG_FORMAT` | no | `text` | `text` \| `json` (for log shippers) |
 | `AGENTS_CSV_PATH` | no | `data/agents_sample.csv` | Source CSV for the pipeline |
 
 ---
@@ -81,10 +96,15 @@ a `postgres:16` service container automatically.
 | POST | `/agents/{slug}/login` | – | Login scoped to that agent |
 | GET | `/me` | bearer | Current user |
 | POST | `/agents/{slug}/chat` | bearer | Chat with the agent or a `sub_agent_slug` |
+| POST | `/v1/agents/{slug}/chat/stream` | bearer | Same, as Server-Sent Events (`start`/`delta`*/`done`\|`error`); `STREAMING_ENABLED` toggle |
 | GET | `/agents/{slug}/history` | bearer | Conversation history (per sub-agent, `limit` 1–100) |
 | GET | `/meta/usage` | admin token in prod | Agent usage stats (observability) |
 | GET | `/health` | – | Liveness |
 | GET | `/health/ready` | – | Readiness (database reachable) |
+
+**How to verify streaming locally:** `curl -N -X POST http://localhost:8000/v1/agents/<slug>/chat/stream -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"message":"hi"}'` — expect an `event: start` line, one or more `event: delta` lines, then `event: done`.
+
+**How to verify Redis-backed rate limiting/quota locally:** start Redis (`docker compose -f docker-compose.dev.yml up -d`), set `REDIS_URL=redis://localhost:6380/0`, then hit `/agents/{slug}/chat` past `RATE_LIMIT_PER_MIN` or `DAILY_TOKEN_QUOTA_DEFAULT` — expect `429` with `Retry-After` and `X-RateLimit-*` headers. Stop Redis and repeat: the same limits still apply (in-process fallback), confirming a Redis outage never becomes an API outage. See [`docs/runbooks/redis-degradation.md`](docs/runbooks/redis-degradation.md).
 
 ---
 

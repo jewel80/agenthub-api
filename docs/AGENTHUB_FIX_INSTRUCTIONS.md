@@ -172,15 +172,24 @@ uvicorn app.main:app
 
 ## 7. Definition of Done
 
-- [ ] App boots only with a valid PostgreSQL `DATABASE_URL`; no SQLite code path remains
-- [ ] No credentials anywhere in the repo (`git grep -i password`, `git grep postgresql://` show only placeholders)
-- [ ] `alembic upgrade head` runs clean on an empty Postgres DB **and** on a DB with existing messages (backfill)
-- [ ] F1–F4 fixed, each with passing tests
-- [ ] F5, F6, F9, F10, F11 fixed, each with passing tests
-- [ ] All 10 endpoints re-verified live against Postgres (happy + error paths)
-- [ ] `/health/ready` returns 503 when DB is unreachable
-- [ ] Production config refuses weak `JWT_SECRET` and wildcard CORS
-- [ ] Short change log per finding ID in the PR description
+- [x] App boots only with a valid PostgreSQL `DATABASE_URL`; no SQLite code path remains
+      — Implemented: `4a063af` — `tests/test_config_guard.py`
+- [x] No credentials anywhere in the repo (`git grep -i password`, `git grep postgresql://` show only placeholders)
+      — Implemented: M0 audit — `git grep` re-run clean this session (see `docs/PROGRESS.md`)
+- [x] `alembic upgrade head` runs clean on an empty Postgres DB **and** on a DB with existing messages (backfill)
+      — Implemented: `cfff140`, `4cd542e` + this session's `tests/test_migration_backfill.py`
+- [x] F1–F4 fixed, each with passing tests
+      — Implemented: `cfff140`/`4cd542e` (F1), `cd1a718` (F2), `d3eb52a` (F3), `1daba16` (F4) — see `docs/PROGRESS.md` audit table for per-finding tests
+- [x] F5, F6, F9, F10, F11 fixed, each with passing tests
+      — Implemented: `5c32e0a` (F5), `28d901e` (F6), `a4c884b` (F9/F10), `cfaa265`+this session (F11) — see `docs/PROGRESS.md` audit table
+- [x] All 10 endpoints re-verified live against Postgres (happy + error paths)
+      — Implemented: M0 audit, live smoke test against real dev Postgres (port 8123) — see `docs/PROGRESS.md` "Live endpoint smoke test"
+- [x] `/health/ready` returns 503 when DB is unreachable
+      — Implemented: `28d901e` — `tests/test_signup_race_and_readiness.py`; verified live too
+- [x] Production config refuses weak `JWT_SECRET` and wildcard CORS
+      — Implemented: `d3eb52a` — `tests/test_config_guard.py`
+- [x] Short change log per finding ID in the PR description
+      — Implemented as the audit table in `docs/PROGRESS.md` (no PR opened — commits stay local per §2.8; the table is the change log)
 
 ---
 

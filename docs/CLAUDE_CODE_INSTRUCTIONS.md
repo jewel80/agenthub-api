@@ -54,7 +54,7 @@ Read all three docs fully before writing any code. They are the source of truth;
 ```
 Read the doc section  →  Inspect current code  →  Plan (short)  →  Implement
    →  Write/extend tests  →  Run full suite on Postgres  →  Lint  →  Commit
-   →  Update docs/PROGRESS.md
+   →  Update docs (see below, same commit)
 ```
 
 Standard commands (adjust if the repo differs — record the actual ones in `PROGRESS.md`):
@@ -68,6 +68,18 @@ mypy app                                     # once type checking is introduced
 ```
 
 Use subagents for independent, read-heavy work (e.g. auditing a doc section while you implement another). Use plan mode before any multi-file refactor (session split, cache layer, outbox).
+
+### Docs update checklist (mandatory, every section, same commit)
+
+A section isn't done when the code is green — it's done when these are updated too, in the *same* commit as the code:
+
+1. **`docs/PROGRESS.md`** — status table row, decisions/assumptions, blockers, needs-human-action.
+2. **The source instruction doc** (`AGENTHUB_FIX_INSTRUCTIONS.md` / `AGENTHUB_IMPROVEMENT_ROADMAP.md` / `AGENTHUB_SCALE_ARCHITECTURE.md`) — tick the matching Definition of Done checkbox `[x]` **only when it's actually true**, and add a short "Implemented: `<commit>` — `<file/test>`" note next to it. Leave partially-true items unchecked with a note on what's outstanding — never tick something that isn't fully done.
+3. **`README.md`** — setup steps, env vars, how to run/verify the feature.
+4. **`.env.example`** — every new env var, placeholders only.
+5. **`docs/runbooks/*.md`** — when a feature adds a new failure mode (e.g. "what happens / what to do when X is down").
+
+Never write credentials in any `.md` file.
 
 ---
 
