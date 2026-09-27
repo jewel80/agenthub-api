@@ -140,10 +140,12 @@ class RedisRateLimiter:
         )
         if res is None:  # Redis down -> in-process backstop
             return self._fallback.hit(key)
-        allowed, limit, reset = int(res[0]), int(res[1]), int(res[2])
-        return LimitState(
-            allowed == 1, limit, max(0, limit - 1) if allowed else 0, reset
-        )
+        # The script's 3rd element is overloaded: "remaining" when allowed,
+        # "reset seconds" when blocked (see _ZSET_SCRIPT).
+        allowed, limit, third = int(res[0]), int(res[1]), int(res[2])
+        if allowed:
+            return LimitState(True, limit, max(0, third), 0)
+        return LimitState(False, limit, 0, third)
 
     def retry_after(self, key: str) -> int:
         return self._fallback.retry_after(key)  # advisory only

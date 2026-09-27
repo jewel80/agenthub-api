@@ -7,7 +7,8 @@
 # Stop:   docker compose -f docker-compose.dev.yml down
 #
 # Note: host port 6379 is already used by another local project, so AgentHub
-# Redis maps to 6380 — REDIS_URL=redis://localhost:6380/0
+# Redis maps to 6380 — REDIS_URL=redis://127.0.0.1:6380/0
+# (use 127.0.0.1, not "localhost" — see .env.example for why)
 services:
   redis:
     image: redis:7-alpine

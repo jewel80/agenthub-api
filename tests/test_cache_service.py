@@ -1,13 +1,15 @@
 """CacheService: hit/miss/invalidate, stampede protection, negative caching,
 Redis-down degradation, and cross-instance L1 invalidation (scale-doc §2.8).
 
-Real-Redis tests run only when Redis is reachable at localhost:6380 (same
-convention as tests/test_redis_limiter.py); the module also has to work
-(correctly, just without L2/pub-sub) when Redis is absent, covered below.
+Real-Redis tests run only when Redis is reachable at 127.0.0.1:6380 (same
+convention as tests/test_redis_limiter.py, including the 127.0.0.1-not-
+localhost note there); the module also has to work (correctly, just
+without L2/pub-sub) when Redis is absent, covered below.
 """
 from __future__ import annotations
 
 import asyncio
+import uuid
 
 import pytest
 from pydantic import BaseModel
@@ -16,7 +18,17 @@ from app.core import redis as redis_mod
 from app.core.config import settings
 from app.services import cache
 
-TEST_REDIS_URL = "redis://localhost:6380/0"
+TEST_REDIS_URL = "redis://127.0.0.1:6380/0"
+
+
+def _fresh_namespace(label: str) -> str:
+    """A per-test-run-unique namespace. Real Redis (unlike the ephemeral
+    fakeredis used for local dev smoke checks) persists data across test
+    runs with a genuine TTL, so a fixed namespace name can collide with
+    leftover data from a previous run within that TTL — a fresh unique
+    namespace sidesteps that entirely rather than trying to enumerate and
+    delete every versioned key by hand."""
+    return f"t-{label}-{uuid.uuid4().hex[:12]}"
 
 
 class _Item(BaseModel):
@@ -43,7 +55,7 @@ async def live_redis():
     try:
         ok = await redis_mod.ping()
         if not ok:
-            pytest.skip("Redis not reachable at localhost:6380")
+            pytest.skip("Redis not reachable at 127.0.0.1:6380")
         yield redis_mod
     finally:
         await redis_mod.close()
@@ -53,12 +65,8 @@ async def live_redis():
         await asyncio.sleep(0)
 
 
-async def _clear_namespace(namespace: str) -> None:
-    await redis_mod.call("delete", f"agenthub:{settings.ENVIRONMENT}:ver:{namespace}")
-
-
 async def test_hit_miss_invalidate_cycle(live_redis):
-    await _clear_namespace("t-cache-1")
+    ns = _fresh_namespace("cycle")
     calls = 0
 
     async def loader():
@@ -66,30 +74,30 @@ async def test_hit_miss_invalidate_cycle(live_redis):
         calls += 1
         return _Item(id=1, name=f"call-{calls}")
 
-    first = await cache.get_or_load("t-cache-1", "k1", loader, model=_Item)
+    first = await cache.get_or_load(ns, "k1", loader, model=_Item)
     assert first.name == "call-1"
     assert calls == 1
 
     # L1 hit: no loader call, no Redis round trip needed.
-    second = await cache.get_or_load("t-cache-1", "k1", loader, model=_Item)
+    second = await cache.get_or_load(ns, "k1", loader, model=_Item)
     assert second.name == "call-1"
     assert calls == 1
 
     # Force an L2-only hit by clearing L1 but leaving Redis populated.
     cache._l1.clear()
-    third = await cache.get_or_load("t-cache-1", "k1", loader, model=_Item)
+    third = await cache.get_or_load(ns, "k1", loader, model=_Item)
     assert third.name == "call-1"
     assert calls == 1
 
     # Invalidate (version bump) -> old data is unreachable, loader runs again.
-    await cache.invalidate("t-cache-1")
-    fourth = await cache.get_or_load("t-cache-1", "k1", loader, model=_Item)
+    await cache.invalidate(ns)
+    fourth = await cache.get_or_load(ns, "k1", loader, model=_Item)
     assert fourth.name == "call-2"
     assert calls == 2
 
 
 async def test_negative_caching_avoids_repeat_loads(live_redis):
-    await _clear_namespace("t-cache-neg")
+    ns = _fresh_namespace("neg")
     calls = 0
 
     async def loader():
@@ -97,22 +105,18 @@ async def test_negative_caching_avoids_repeat_loads(live_redis):
         calls += 1
         return None  # "not found"
 
-    first = await cache.get_or_load(
-        "t-cache-neg", "missing", loader, negative=True, model=_Item
-    )
+    first = await cache.get_or_load(ns, "missing", loader, negative=True, model=_Item)
     assert first is None
     assert calls == 1
 
     cache._l1.clear()  # force an L2 read
-    second = await cache.get_or_load(
-        "t-cache-neg", "missing", loader, negative=True, model=_Item
-    )
+    second = await cache.get_or_load(ns, "missing", loader, negative=True, model=_Item)
     assert second is None
     assert calls == 1  # negative result served from Redis, loader not re-run
 
 
 async def test_stampede_50_concurrent_misses_one_load(live_redis):
-    await _clear_namespace("t-cache-stampede")
+    ns = _fresh_namespace("stampede")
     calls = 0
 
     async def slow_loader():
@@ -122,10 +126,7 @@ async def test_stampede_50_concurrent_misses_one_load(live_redis):
         return _Item(id=1, name="loaded-once")
 
     results = await asyncio.gather(
-        *(
-            cache.get_or_load("t-cache-stampede", "hot-key", slow_loader, model=_Item)
-            for _ in range(50)
-        )
+        *(cache.get_or_load(ns, "hot-key", slow_loader, model=_Item) for _ in range(50))
     )
     assert all(r.name == "loaded-once" for r in results)
     assert calls == 1
@@ -177,13 +178,14 @@ def test_invalidation_message_clears_l1_for_that_namespace():
 async def test_invalidate_publishes_to_the_cross_instance_channel(live_redis):
     """A second instance subscribed to the channel receives the namespace
     name when this instance calls invalidate() (scale-doc §2.3.10)."""
+    ns = _fresh_namespace("pubsub")
     client = await redis_mod.get_redis()
     pubsub = client.pubsub()
     async with pubsub:
         await pubsub.subscribe(cache.invalidate_channel())
         await pubsub.get_message(timeout=1)  # discard the subscribe confirmation
 
-        await cache.invalidate("t-cache-pubsub")
+        await cache.invalidate(ns)
 
         message = None
         for _ in range(20):
@@ -191,4 +193,4 @@ async def test_invalidate_publishes_to_the_cross_instance_channel(live_redis):
             if message and message["type"] == "message":
                 break
         assert message is not None
-        assert message["data"] == "t-cache-pubsub"
+        assert message["data"] == ns

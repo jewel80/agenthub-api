@@ -83,7 +83,7 @@ locally only because no local Redis is running (they run in CI now).
 | §3 | Chat streaming (SSE) | ✅ verified | this session | `test_streaming.py` (10 tests) | Fixed contract (`start`/`delta`*/`done`\|`error`), heartbeat, disconnect→`interrupted`, mid-stream error→`failed`, zero-text failure persists nothing, `STREAMING_ENABLED` toggle, concurrent-stream cap |
 | §3.3.6 | `messages.status` migration | ✅ verified | this session | migration + `test_streaming.py` | Expand-only, `server_default='complete'`, check constraint |
 | §4.1 | Anthropic prompt caching | ✅ verified | this session | covered indirectly (usage fields threaded through); no live Anthropic call in CI (mock provider) | System prompt + history-prefix breakpoints; `LLM_PROMPT_CACHE_ENABLED` toggle; current Anthropic minimum cacheable length (per SDK docs, ~1024 tokens for Haiku-class models) — **not independently re-verified against live Anthropic docs this session**, flagged below |
-| §5 | Redis rate limiting | ✅ verified | this session | `test_redis_limiter.py`, `test_rate_limiter.py` | Sliding-window Lua script, `X-RateLimit-*` headers, Redis-down degrades to in-memory |
+| §5 | Redis rate limiting | ✅ verified, 1 bug fixed against real Redis (see "Corrections" below) | this session (+ fix in M3) | `test_redis_limiter.py`, `test_rate_limiter.py` | Sliding-window Lua script, `X-RateLimit-*` headers, Redis-down degrades to in-memory |
 | §5 | Daily token quota | ✅ verified | this session | `test_quota_and_lockout.py` | 429 + `Retry-After`; enforced before both `/chat` and `/chat/stream` |
 | §5 | Login lockout (exponential) | ✅ verified | this session | `test_quota_and_lockout.py` | Per (email, agent); 30s→60s→...→15min cap |
 | §5 | Login stricter rate limit | 🔧 fixed in review (was declared in settings, never wired) | this session | `test_login_rate_limit_is_stricter_than_lockout` | `LOGIN_RATE_LIMIT_PER_MIN` now enforced on `/login` (not `/signup` — see Decisions) |
@@ -100,7 +100,7 @@ locally only because no local Redis is running (they run in CI now).
 | §2.3.2/.3 | Versioned keys (`agenthub:{env}:{ns}:v{ver}:{ident}`); invalidation = `INCR`, no `KEYS`/`SCAN` | ✅ verified | this session | `test_hit_miss_invalidate_cycle` | Fixed a real bug during dev: Redis `INCR` on a missing key starts at 1, same as the "never invalidated" default, so the very first `invalidate()` was a no-op — changed the default to 0 (see Decisions) |
 | §2.3.5 | TTL jitter | ✅ implemented | this session | — | `CACHE_TTL_JITTER_PCT`, ± spread on write |
 | §2.3.6 | Stampede protection (short `SET NX` lock, ≤200ms poll) | ✅ verified | this session | `test_stampede_50_concurrent_misses_one_load` | 50 concurrent misses → 1 DB load |
-| §2.3.7 | Stale-while-revalidate | ✅ verified (fakeredis smoke check — no local Redis, see below) | this session | manual smoke script (not committed) | Envelope stores `fresh_until`; Redis TTL outlives it by up to 60s so a stale value is served immediately while a background task refreshes |
+| §2.3.7 | Stale-while-revalidate | ✅ verified against real Redis (fakeredis smoke check first, then re-confirmed once local Redis became reachable) | this session | manual smoke script (not committed) | Envelope stores `fresh_until`; Redis TTL outlives it by up to 60s so a stale value is served immediately while a background task refreshes |
 | §2.3.8 | Negative caching | ✅ verified | this session | `test_negative_caching_avoids_repeat_loads` | Unknown/deactivated agent slugs cache a `None` result for `CACHE_NEGATIVE_TTL_SECONDS` |
 | §2.3.9/.10 | L1 in-process (≤30s TTL) + cross-instance invalidation via Redis pub/sub | ✅ verified | this session | `test_invalidation_message_clears_l1_for_that_namespace`, `test_invalidate_publishes_to_the_cross_instance_channel` | Listener wired into `app/main.py` lifespan; degrades to a no-op loop (retries every 5s) when Redis is unavailable |
 | §2.3.11 | Serialize Pydantic DTOs, never ORM objects | ✅ verified | this session | — | Used stdlib `json` + `model_dump_json`/`model_validate` rather than `orjson`/`msgpack` — no perf requirement measured yet; easy to swap later (see Decisions) |
@@ -109,7 +109,54 @@ locally only because no local Redis is running (they run in CI now).
 | §2.5 | HTTP `ETag` + `Cache-Control: public, max-age=60, stale-while-revalidate=300`; `If-None-Match` → `304`; authenticated → `private, no-store` | ✅ verified | this session | live smoke test | `GET /agents`, `/agents/{slug}`, `/industries` — confirmed live: 200 with ETag, 304 on repeat with `If-None-Match`, `GET /me` (authed) → `Cache-Control: private, no-store` |
 | §2.4 | Cache invalidation trigger | ✅ verified | this session | — | `python -m app.pipeline.seed_agents` invalidates `catalog`/`agent`/`industries` once after all upserts (not per-row, to avoid version churn) |
 | §2.7 | Optional semantic LLM cache | 🕒 deferred | — | — | Off by default per spec; no FAQ-style agent exists in this catalog (all are professional-advisor personas) — no business trigger yet |
-| §2.8 | Tests: hit/miss/invalidate, stampede, Redis-down, L1 cross-instance | ✅ verified | this session | `tests/test_cache_service.py` (2 pass locally, 4 skip — same "no local Redis" limitation as `test_redis_limiter.py`) | Full live-Redis run verified once via a temporary `fakeredis`-based smoke script (not committed — dev-only, uninstalled after) to catch bugs the skip-when-unreachable tests can't; the version-fallback bug above was caught this way |
+| §2.8 | Tests: hit/miss/invalidate, stampede, Redis-down, L1 cross-instance | ✅ verified against real Redis | this session | `tests/test_cache_service.py` — all 6 pass live (initially 2 pass/4 skip — no local Redis then; re-run against real Redis once available, 0 skips now) | Initial dev-time verification used a temporary `fakeredis` smoke script (not committed) to catch bugs the skip-when-unreachable tests couldn't yet — the version-fallback bug above was caught this way. Once real Redis became reachable, a genuine test-isolation bug surfaced (see "Corrections" below) and was fixed |
+
+## Corrections (found once real Redis became reachable)
+
+A local Redis became reachable this session for the first time (previously
+this machine had no Docker and every Redis-dependent test skipped — see
+Needs human action). Full suite: **120 passed, 0 skipped** (up from
+110 passed / 8 skipped). Re-running the whole Redis-dependent surface for
+real, instead of the skip-when-unreachable path, surfaced three real issues
+— reported faithfully rather than silently fixed and left undocumented:
+
+1. **`localhost` vs `127.0.0.1` (environment, not app code).** On this
+   Windows machine, Python's `getaddrinfo("localhost", ...)` resolves to
+   `::1` (IPv6) first; the local Redis server only listens on IPv4, so
+   `redis://localhost:6380/0` timed out instead of connecting. Fixed by
+   using `127.0.0.1` explicitly everywhere a test/`.env.example`/compose
+   file names the local Redis: `tests/test_redis_limiter.py`,
+   `tests/test_cache_service.py`, `.env.example`, `app/core/config.py`
+   (comment), `docker-compose.dev.yml` (comment), `README.md`. This is why
+   the 4 `test_redis_limiter.py` tests and 4 `test_cache_service.py` tests
+   were "skipped" rather than failing outright — `ping()` genuinely
+   couldn't reach the server, which is exactly the condition those fixtures
+   are designed to skip on.
+2. **Real bug in `RedisRateLimiter.hit()`** (`app/services/rate_limiter.py`,
+   roadmap §5, predates this session — not part of the CacheService work):
+   the Lua script's third return value is overloaded (remaining count when
+   allowed, reset-seconds when blocked), but the Python side always treated
+   it as `limit - 1` when allowed (ignoring the actual `used` count) and
+   never zeroed `reset_after` for the allowed case. `X-RateLimit-Remaining`
+   was therefore wrong on every allowed request once more than one request
+   had been made in the window, and `X-RateLimit-Reset` leaked a bogus
+   value on success. This was never caught locally because the test that
+   would have caught it (`test_redis_rate_limiter_blocks_at_limit`) always
+   skipped here for lack of Redis, and (as far as this session can tell)
+   this branch had not yet been pushed for CI to run it either. Fixed to
+   read the script's third value correctly per the `allowed` flag; test now
+   passes against real Redis.
+3. **Test-isolation bug in `tests/test_cache_service.py`** (this session's
+   own new file): tests used fixed namespace names (`"t-cache-1"`, etc.)
+   and only cleared the namespace's *version* key before each run. Real
+   Redis persists data across separate `pytest` invocations (unlike the
+   ephemeral `fakeredis` used for initial dev-time verification), so a key
+   written by an earlier run — still within its TTL — was read back as a
+   false "cache hit", making the loader appear to not run
+   (`assert calls == 1` failing with `calls == 0`). Fixed by giving each
+   test a fresh UUID-suffixed namespace (`_fresh_namespace()`), which
+   can't collide with any prior run's data, rather than trying to
+   enumerate and delete every versioned key by hand.
 
 ## Decisions & assumptions (M3 §2)
 
@@ -181,14 +228,14 @@ locally only because no local Redis is running (they run in CI now).
   minimum is higher than typical short system prompts in the seed data,
   cache writes may no-op harmlessly but won't show a hit-rate win. No code
   change is blocking on this; it's a verification/tuning item.
-- 📄 **Local Redis for full local test coverage**: this machine has no
-  Docker installed (Docker Desktop appears partially uninstalled — an
-  orphaned stopped `docker-desktop` WSL distro remains, no `docker` CLI on
-  PATH). `docker-compose.dev.yml` is ready (`redis:7-alpine` on host port
-  6380); once Docker is available, `docker compose -f docker-compose.dev.yml
-  up -d` unlocks the 4 currently-skipped `test_redis_limiter.py` tests and
-  the 4 currently-skipped `test_cache_service.py` tests locally. CI already
-  runs them (Redis service container added in M1).
+- ✅ **Local Redis** — resolved this session. A Redis instance is now
+  reachable at `127.0.0.1:6380` (this machine still has no Docker CLI, so
+  it isn't necessarily the `docker-compose.dev.yml` container — whatever it
+  is, it answers `PING` on that port). All 8 previously-skipped
+  Redis-dependent tests (`test_redis_limiter.py`, `test_cache_service.py`)
+  now run for real locally: 120 passed, 0 skipped. See "Corrections" above
+  for what that surfaced. `docker-compose.dev.yml` remains the documented
+  way to get one if this local instance ever goes away.
 - 📄 **User-lookup and agent-chat-config caching (scale-doc §2.4)** are not
   wired up — see the M3 §2 Decisions above. Needs a real invalidation
   trigger (a user-update/deactivate endpoint, a live agent-config-edit
@@ -244,5 +291,7 @@ locally only because no local Redis is running (they run in CI now).
   stampede protection, negative caching, stale-while-revalidate,
   cross-instance L1 invalidation via pub/sub, wired into the public catalog
   endpoints with HTTP `ETag`/`304`/`Cache-Control`. See the doc #3 audit
-  table above for the full per-item breakdown. Next: §1 read/write split →
-  §3 outbox → §5.1 `pg_trgm`.
+  table above for the full per-item breakdown. Re-verified against real
+  Redis once it became reachable this session (see "Corrections" above) —
+  full suite now 120 passed, 0 skipped. Next: §1 read/write split → §3
+  outbox → §5.1 `pg_trgm`.

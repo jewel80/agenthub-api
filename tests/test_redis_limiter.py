@@ -1,8 +1,13 @@
 """Redis-backed rate limiting + safe degradation (roadmap §5).
 
 Real Redis tests run only when REDIS_URL is reachable (docker compose -f
-docker-compose.dev.yml up -d starts one on localhost:6380); otherwise they
+docker-compose.dev.yml up -d starts one on 127.0.0.1:6380); otherwise they
 skip so the suite stays runnable anywhere.
+
+Uses 127.0.0.1, not "localhost": on this Windows dev environment, Python's
+getaddrinfo resolves "localhost" to ::1 (IPv6) first, and a Redis server
+bound only to IPv4 then times out rather than falling back — a real
+connectivity gap, not a typo. See docs/PROGRESS.md M3 §1 notes.
 """
 from __future__ import annotations
 
@@ -12,7 +17,7 @@ from app.core import redis as redis_mod
 from app.core.config import settings
 from app.services.rate_limiter import HybridRateLimiter, RedisRateLimiter
 
-TEST_REDIS_URL = "redis://localhost:6380/0"
+TEST_REDIS_URL = "redis://127.0.0.1:6380/0"
 
 
 @pytest.fixture
@@ -27,7 +32,7 @@ async def live_redis():
     try:
         ok = await redis_mod.ping()
         if not ok:
-            pytest.skip("Redis not reachable at localhost:6380")
+            pytest.skip("Redis not reachable at 127.0.0.1:6380")
         yield redis_mod
     finally:
         await redis_mod.close()

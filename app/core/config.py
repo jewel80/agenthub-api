@@ -65,7 +65,7 @@ class Settings(BaseSettings):
     # --- Redis (roadmap §5 / scale §2) ---
     # Empty/unreachable Redis => the app degrades to in-memory rate limiting
     # and skips caching; it must never crash or take the API down.
-    REDIS_URL: str = ""  # e.g. redis://localhost:6380/0
+    REDIS_URL: str = ""  # e.g. redis://127.0.0.1:6380/0 (see .env.example)
 
     # --- Multi-layer caching (scale §2) ---
     CACHE_ENABLED: bool = True
