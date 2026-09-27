@@ -244,8 +244,10 @@ STORAGE_SECRET_ACCESS_KEY=<provided separately>
 ## 11. Definition of Done
 
 - [ ] Writer/reader sessions in place; reader is read-only; read-your-writes and the lag guard work; replica off = identical behavior
-- [ ] `CacheService` is the only cache entry point; versioned keys, jitter, stampede lock, SWR, negative cache, L1 + pub/sub invalidation
-- [ ] Redis outage → API still serves correct data (tested)
+- [x] `CacheService` is the only cache entry point; versioned keys, jitter, stampede lock, SWR, negative cache, L1 + pub/sub invalidation
+      — Implemented: this session — `app/services/cache.py`, `tests/test_cache_service.py` (hit/miss/invalidate, negative caching, 50-concurrent stampede → 1 load, SWR verified via a fakeredis smoke check — see `docs/PROGRESS.md`)
+- [x] Redis outage → API still serves correct data (tested)
+      — Implemented: this session — `tests/test_cache_service.py::test_redis_down_still_returns_correct_data`; live-verified `/agents`, `/agents/{slug}`, `/industries` (see `docs/PROGRESS.md`)
 - [ ] Outbox: no lost events, idempotent consumers, dead-letter + alert
 - [ ] No analytics queries on the primary
 - [ ] Catalog search in SQL with a trigram index

@@ -1,7 +1,8 @@
 # AgentHub Progress
 
 ## Current milestone
-M2 — Roadmap Phase 1 (✅ complete) → about to start M3 (Scale doc "Now" items)
+M3 — Scale doc "Now" items. §2 `CacheService` ✅ complete. Next: §1
+read/write split → §3 outbox → §5.1 `pg_trgm`.
 
 ## How this was verified (M0 audit, 2026-09-25/26)
 
@@ -91,6 +92,50 @@ locally only because no local Redis is running (they run in CI now).
 
 **Doc #2 §18 Definition of Done, Phase 1 items: all ✅** (Phase 2–4 items not started — see Needs human action / next milestones).
 
+## Audit table — doc #3 (Scale Architecture), M3
+
+| ID | Item | Status | Commit | Test(s) | Notes |
+|----|------|--------|--------|---------|-------|
+| §2 | `CacheService` (L1 in-process + L2 Redis, cache-aside) | ✅ verified | this session | `test_cache_service.py` | `app/services/cache.py`; only entry point talking to Redis for caching |
+| §2.3.2/.3 | Versioned keys (`agenthub:{env}:{ns}:v{ver}:{ident}`); invalidation = `INCR`, no `KEYS`/`SCAN` | ✅ verified | this session | `test_hit_miss_invalidate_cycle` | Fixed a real bug during dev: Redis `INCR` on a missing key starts at 1, same as the "never invalidated" default, so the very first `invalidate()` was a no-op — changed the default to 0 (see Decisions) |
+| §2.3.5 | TTL jitter | ✅ implemented | this session | — | `CACHE_TTL_JITTER_PCT`, ± spread on write |
+| §2.3.6 | Stampede protection (short `SET NX` lock, ≤200ms poll) | ✅ verified | this session | `test_stampede_50_concurrent_misses_one_load` | 50 concurrent misses → 1 DB load |
+| §2.3.7 | Stale-while-revalidate | ✅ verified (fakeredis smoke check — no local Redis, see below) | this session | manual smoke script (not committed) | Envelope stores `fresh_until`; Redis TTL outlives it by up to 60s so a stale value is served immediately while a background task refreshes |
+| §2.3.8 | Negative caching | ✅ verified | this session | `test_negative_caching_avoids_repeat_loads` | Unknown/deactivated agent slugs cache a `None` result for `CACHE_NEGATIVE_TTL_SECONDS` |
+| §2.3.9/.10 | L1 in-process (≤30s TTL) + cross-instance invalidation via Redis pub/sub | ✅ verified | this session | `test_invalidation_message_clears_l1_for_that_namespace`, `test_invalidate_publishes_to_the_cross_instance_channel` | Listener wired into `app/main.py` lifespan; degrades to a no-op loop (retries every 5s) when Redis is unavailable |
+| §2.3.11 | Serialize Pydantic DTOs, never ORM objects | ✅ verified | this session | — | Used stdlib `json` + `model_dump_json`/`model_validate` rather than `orjson`/`msgpack` — no perf requirement measured yet; easy to swap later (see Decisions) |
+| §2.3.12 | Redis error → degrade to DB; timeout ≤200ms; circuit breaker | ✅ verified | this session | `test_redis_down_still_returns_correct_data` | Reused the existing `app/core/redis.py` timeout/circuit-breaker (`is_unavailable()` added so the stampede-wait loop skips its ~200ms poll during a known outage instead of adding latency per request) |
+| §2.4 | What to cache: catalog list, agent detail, industries | ✅ verified | this session | live smoke test (see below) | User-lookup caching (60s) and agent-chat-config caching are deferred — no runtime endpoint mutates users/agent-config yet outside the seed pipeline and auth's own DB reads, so there's no cache-invalidation trigger to wire up honestly yet; flagged under Needs human action |
+| §2.5 | HTTP `ETag` + `Cache-Control: public, max-age=60, stale-while-revalidate=300`; `If-None-Match` → `304`; authenticated → `private, no-store` | ✅ verified | this session | live smoke test | `GET /agents`, `/agents/{slug}`, `/industries` — confirmed live: 200 with ETag, 304 on repeat with `If-None-Match`, `GET /me` (authed) → `Cache-Control: private, no-store` |
+| §2.4 | Cache invalidation trigger | ✅ verified | this session | — | `python -m app.pipeline.seed_agents` invalidates `catalog`/`agent`/`industries` once after all upserts (not per-row, to avoid version churn) |
+| §2.7 | Optional semantic LLM cache | 🕒 deferred | — | — | Off by default per spec; no FAQ-style agent exists in this catalog (all are professional-advisor personas) — no business trigger yet |
+| §2.8 | Tests: hit/miss/invalidate, stampede, Redis-down, L1 cross-instance | ✅ verified | this session | `tests/test_cache_service.py` (2 pass locally, 4 skip — same "no local Redis" limitation as `test_redis_limiter.py`) | Full live-Redis run verified once via a temporary `fakeredis`-based smoke script (not committed — dev-only, uninstalled after) to catch bugs the skip-when-unreachable tests can't; the version-fallback bug above was caught this way |
+
+## Decisions & assumptions (M3 §2)
+
+- **Serialization is stdlib `json` + Pydantic, not `orjson`/`msgpack`.** The
+  scale doc suggests either for perf; no latency/throughput requirement has
+  been measured yet to justify the extra dependency. Easy to swap inside
+  `_serialize`/`_deserialize` later without touching call sites.
+- **User-lookup (60s) and agent-chat-config caching (§2.4 table) are not
+  wired up yet.** Both need a real invalidation trigger (user update/
+  deactivate/logout-all; agent-config update) and neither has a runtime
+  mutation path yet — auth reads users directly per request and agent
+  config is only ever changed via the seed pipeline (already invalidates
+  the agent namespace). Wiring a cache with no invalidation trigger would
+  be worse than not caching. Revisit when a user-profile-update or
+  live-agent-config-edit endpoint exists.
+- **Redis `INCR`-on-missing-key starts at 1** — same value the "no version
+  yet" default originally returned, which made the very first
+  `invalidate()` call after boot a silent no-op (old data kept matching the
+  "new" key). Fixed by making the no-version-yet default `0` instead of
+  `1`; caught via the fakeredis smoke check, not by the (locally-skipped)
+  live-Redis test suite — see Needs human action re: local Redis.
+- **SWR's background revalidate reuses the stampede lock pattern** (a
+  separate `:revalidate-lock` key) so a slow loader doesn't get triggered
+  by every concurrent stale read of the same key, not just true cache
+  misses.
+
 ## Out-of-scope findings
 
 - `ruff format --check .` reports 57 files "would reformat". Root cause:
@@ -141,9 +186,13 @@ locally only because no local Redis is running (they run in CI now).
   orphaned stopped `docker-desktop` WSL distro remains, no `docker` CLI on
   PATH). `docker-compose.dev.yml` is ready (`redis:7-alpine` on host port
   6380); once Docker is available, `docker compose -f docker-compose.dev.yml
-  up -d` unlocks the 4 currently-skipped `test_redis_limiter.py` tests
-  locally. CI already runs them (Redis service container added this
-  session).
+  up -d` unlocks the 4 currently-skipped `test_redis_limiter.py` tests and
+  the 4 currently-skipped `test_cache_service.py` tests locally. CI already
+  runs them (Redis service container added in M1).
+- 📄 **User-lookup and agent-chat-config caching (scale-doc §2.4)** are not
+  wired up — see the M3 §2 Decisions above. Needs a real invalidation
+  trigger (a user-update/deactivate endpoint, a live agent-config-edit
+  endpoint) before it's worth adding; neither exists yet.
 - 📄 Everything under fix-doc §8 / roadmap "What I cannot do in code":
   managed Postgres failover, PgBouncer deployment, CDN/WAF, pen test, DR
   restore drill, secret-manager rotation, production load test, staging
@@ -189,5 +238,11 @@ locally only because no local Redis is running (they run in CI now).
   introduced (Redis down, login-lockout stuck state). `.env.example` was
   already complete for M0–M2 — no changes needed there.
 - **M3 (Scale doc "Now" items: `CacheService`, read/write split, outbox,
-  `pg_trgm`)** — starting now, one section at a time per §10's order:
-  §2 `CacheService` → §1 read/write split → §3 outbox → §5.1 `pg_trgm`.
+  `pg_trgm`)** — in progress, one section at a time per §10's order.
+  **§2 `CacheService` — ✅ complete this session**: multi-layer cache
+  (in-process L1 + Redis L2), versioned-key invalidation, TTL jitter,
+  stampede protection, negative caching, stale-while-revalidate,
+  cross-instance L1 invalidation via pub/sub, wired into the public catalog
+  endpoints with HTTP `ETag`/`304`/`Cache-Control`. See the doc #3 audit
+  table above for the full per-item breakdown. Next: §1 read/write split →
+  §3 outbox → §5.1 `pg_trgm`.

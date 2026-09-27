@@ -83,6 +83,16 @@ async def call(cmd: str, *args: Any, **kwargs: Any) -> Any:
         return None
 
 
+def is_unavailable() -> bool:
+    """Fast, non-blocking check: True once Redis has been marked unavailable.
+
+    Lets callers (e.g. the cache service's stampede wait) skip an extra
+    round of polling during a known outage instead of adding latency to
+    every request while Redis is down.
+    """
+    return _unavailable
+
+
 async def close() -> None:
     """Close the shared client (app shutdown)."""
     global _client

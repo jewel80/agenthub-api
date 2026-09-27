@@ -1,8 +1,9 @@
-# Runbook: Redis down / rate-limit & lockout anomalies
+# Runbook: Redis down / rate-limit, lockout & cache anomalies
 
 Covers the failure modes introduced by the Redis-backed rate limiting, daily
-token quota, and login lockout (roadmap §5, M1/M2). No credentials in this
-file — see `.env.example` for the `REDIS_URL` placeholder.
+token quota, login lockout (roadmap §5, M1/M2), and the multi-layer catalog
+cache (scale §2, M3). No credentials in this file — see `.env.example` for
+the `REDIS_URL` placeholder.
 
 ## 1. Redis is down or unreachable
 
@@ -46,7 +47,31 @@ the lock expires.
 - A rolling restart of the affected instance clears all in-process lockout
   state immediately (use only if a user is genuinely blocked and cannot wait).
 
-## 3. Verifying the fallback yourself
+## 3. Catalog cache stuck / stale after an agent update
+
+**Symptom:** `python -m app.pipeline.seed_agents` ran, but `GET /agents` or
+`GET /agents/{slug}` still returns the old data.
+
+**Likely causes and fixes:**
+- **Redis down at seed time:** `cache.invalidate()` (called once at the end
+  of the pipeline run) degrades to a no-op when Redis is unreachable — it
+  can only bump the version/publish once Redis is back. Fix Redis (§1
+  above), then re-run `python -m app.pipeline.seed_agents` (idempotent) to
+  re-trigger invalidation.
+- **Another instance's L1 didn't get the pub/sub message** (e.g. it was
+  restarting, or its own Redis connection was flaky at that moment): its L1
+  entry still self-expires within 30s regardless (`app/services/cache.py`,
+  `_L1_TTL_SECONDS`) — worst case is 30s of staleness on that one instance,
+  never longer, and never wrong data past that.
+- **`CACHE_ENABLED=false` was expected:** confirm the env var — with
+  caching off every request reads the DB directly, so there is nothing to
+  invalidate.
+
+**What NOT to do:** don't restart every instance to "clear the cache" —
+L1 always self-expires within 30s and Redis-side keys are versioned, so a
+stuck cache should not persist past one `invalidate()` call succeeding.
+
+## 4. Verifying the fallback yourself
 
 ```bash
 # with Redis up: normal Redis-backed behavior

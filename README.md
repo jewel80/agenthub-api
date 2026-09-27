@@ -72,7 +72,13 @@ a `postgres:16` service container automatically.
 | `STREAMING_ENABLED` | no | `true` | SSE streaming endpoint toggle |
 | `STREAM_MAX_SECONDS` | no | `120` | Max duration of one SSE stream |
 | `MAX_CONCURRENT_STREAMS_PER_USER` | no | `2` | Per-user concurrent stream cap; `0` disables |
-| `REDIS_URL` | no | — | Optional at runtime: empty/unreachable → in-memory rate limiting, no caching, never crashes. Local dev: `docker compose -f docker-compose.dev.yml up -d` (host port `6380`) |
+| `REDIS_URL` | no | — | Optional at runtime: empty/unreachable → in-memory rate limiting, no L2 cache, never crashes. Local dev: `docker compose -f docker-compose.dev.yml up -d` (host port `6380`) |
+| `CACHE_ENABLED` | no | `true` | Multi-layer catalog cache (scale §2); `false` always reads the DB |
+| `CACHE_L1_ENABLED` | no | `true` | In-process TTL cache (≤30s), independent of Redis |
+| `CACHE_L1_MAX_ITEMS` | no | `5000` | L1 cache size per namespace |
+| `CACHE_DEFAULT_TTL_SECONDS` | no | `300` | Default L2 (Redis) TTL, ± jitter |
+| `CACHE_TTL_JITTER_PCT` | no | `10` | TTL jitter, avoids synchronized expiry |
+| `CACHE_NEGATIVE_TTL_SECONDS` | no | `30` | TTL for cached "not found" results |
 | `RATE_LIMIT_PER_MIN` | no | `20` | Per-user chat cap; `0` disables |
 | `RATE_LIMIT_IP_PER_MIN` | no | `60` | Per-IP cap on unauthenticated routes; `0` disables |
 | `LOGIN_RATE_LIMIT_PER_MIN` | no | `10` | Per (email, agent) login attempt cap |
@@ -105,6 +111,8 @@ a `postgres:16` service container automatically.
 **How to verify streaming locally:** `curl -N -X POST http://localhost:8000/v1/agents/<slug>/chat/stream -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"message":"hi"}'` — expect an `event: start` line, one or more `event: delta` lines, then `event: done`.
 
 **How to verify Redis-backed rate limiting/quota locally:** start Redis (`docker compose -f docker-compose.dev.yml up -d`), set `REDIS_URL=redis://localhost:6380/0`, then hit `/agents/{slug}/chat` past `RATE_LIMIT_PER_MIN` or `DAILY_TOKEN_QUOTA_DEFAULT` — expect `429` with `Retry-After` and `X-RateLimit-*` headers. Stop Redis and repeat: the same limits still apply (in-process fallback), confirming a Redis outage never becomes an API outage. See [`docs/runbooks/redis-degradation.md`](docs/runbooks/redis-degradation.md).
+
+**How to verify the catalog cache locally:** `curl -i http://localhost:8000/agents` → note the `ETag`; repeat with `-H "If-None-Match: <etag>"` → `304 Not Modified`. Re-run `python -m app.pipeline.seed_agents` after editing the CSV and the very next `GET /agents` reflects the change (cache invalidated) with a new `ETag`. An authenticated endpoint (e.g. `GET /me`) always answers `Cache-Control: private, no-store`.
 
 ---
 

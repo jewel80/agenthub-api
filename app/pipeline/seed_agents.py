@@ -27,6 +27,7 @@ from app.core.config import settings
 from app.core.db import AsyncSessionLocal
 from app.pipeline.templates import MAIN_AGENT_TEMPLATE, SUB_AGENT_TEMPLATE
 from app.repositories import agent_repo
+from app.services import cache as cache_service
 
 # The 5 main agents we explicitly feature/verify (distinct personas). This is a
 # DATA list (which slugs to spotlight), not per-agent branching code.
@@ -191,6 +192,11 @@ async def main(argv: list[str] | None = None) -> int:
 
     async with AsyncSessionLocal() as db:
         counts = await seed(db, csv_path, polish_fn=polish_fn)
+
+    # Agent create/update/(de)activate invalidates the catalog caches
+    # (scale-doc §2.4) — a no-op when Redis/caching isn't configured.
+    for namespace in ("catalog", "agent", "industries"):
+        await cache_service.invalidate(namespace)
 
     print(
         f"Seeded {counts['main']} main agents and {counts['sub']} sub-agents "

@@ -111,22 +111,30 @@ def _isolate_stateful_singletons(monkeypatch):
     - disable the per-IP middleware limiter (specific tests re-enable it)
     - fresh login-guard, login rate limiter, stream counters, and token
       quota each test
+    - CacheService off by default: most tests write agents directly via the
+      DB session (bypassing the pipeline's cache-invalidation hook) and
+      immediately re-read via HTTP, which a process-global L1 cache would
+      serve stale. tests/test_cache_service.py re-enables it explicitly.
     """
     from app.api.routers import chat as chat_router
+    from app.services import cache as cache_mod
     from app.services import login_guard as login_guard_mod
     from app.services import rate_limiter as rate_limiter_mod
 
     monkeypatch.setattr(settings, "RATE_LIMIT_IP_PER_MIN", 0)
     monkeypatch.setattr(settings, "STREAMING_ENABLED", True)
+    monkeypatch.setattr(settings, "CACHE_ENABLED", False)
     login_guard_mod._guard = None
     rate_limiter_mod._quota_limiter = None
     rate_limiter_mod._login_limiter = None
     rate_limiter_mod._llm_semaphore = None
     chat_router._stream_counts.clear()
+    cache_mod._l1.clear()
     yield
     login_guard_mod._guard = None
     rate_limiter_mod._quota_limiter = None
     rate_limiter_mod._login_limiter = None
+    cache_mod._l1.clear()
     rate_limiter_mod._llm_semaphore = None
     chat_router._stream_counts.clear()
 

@@ -14,7 +14,7 @@ import asyncio
 import logging
 import time
 import uuid
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,6 +26,7 @@ from app.core import db as core_db
 from app.core import redis as redis_mod
 from app.core.config import settings
 from app.core.logging import request_id_var, setup_logging
+from app.services import cache as cache_service
 from app.services.llm.base import LLMUnavailableError
 from app.services.rate_limiter import HybridRateLimiter
 
@@ -41,9 +42,15 @@ _ip_limiter = HybridRateLimiter(settings.RATE_LIMIT_IP_PER_MIN)
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
+    # Cross-instance L1 cache invalidation (scale-doc §2.3.10); a no-op loop
+    # when Redis isn't configured/reachable, never a startup failure.
+    listener_task = asyncio.create_task(cache_service.run_invalidation_listener())
     yield
     # Graceful shutdown (roadmap §7): in-flight requests finish first
     # (Starlette awaits them before this runs), then pools close.
+    listener_task.cancel()
+    with suppress(asyncio.CancelledError):
+        await listener_task
     await redis_mod.close()
     await core_db.engine.dispose()
 
@@ -106,6 +113,11 @@ def create_app() -> FastAPI:
         try:
             response = await call_next(request)
             response.headers["X-Request-ID"] = request_id
+            # Authenticated responses are never cached (scale-doc §2.5);
+            # public catalog endpoints already set their own Cache-Control.
+            is_authed = "authorization" in request.headers
+            if is_authed and "cache-control" not in response.headers:
+                response.headers["Cache-Control"] = "private, no-store"
             # Log while the contextvar is still set so the line carries the id.
             elapsed_ms = (time.perf_counter() - start) * 1000
             _request_logger.info(

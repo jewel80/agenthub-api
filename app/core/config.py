@@ -67,6 +67,14 @@ class Settings(BaseSettings):
     # and skips caching; it must never crash or take the API down.
     REDIS_URL: str = ""  # e.g. redis://localhost:6380/0
 
+    # --- Multi-layer caching (scale §2) ---
+    CACHE_ENABLED: bool = True
+    CACHE_L1_ENABLED: bool = True
+    CACHE_L1_MAX_ITEMS: int = 5000
+    CACHE_DEFAULT_TTL_SECONDS: int = 300
+    CACHE_TTL_JITTER_PCT: int = 10  # avoid synchronized expiry across keys
+    CACHE_NEGATIVE_TTL_SECONDS: int = 30  # TTL for cached "not found" results
+
     # --- Limits & quotas (roadmap §5) ---
     RATE_LIMIT_IP_PER_MIN: int = 60     # unauthenticated routes; 0 disables
     LOGIN_RATE_LIMIT_PER_MIN: int = 10  # per email+agent; 0 disables
