@@ -43,6 +43,9 @@ Read all three docs fully before writing any code. They are the source of truth;
    End each commit message with the co-author attribution configured in this environment.
    Commit locally. **Do not push or open PRs unless I ask.**
 9. Don't delete or rewrite unrelated code. If something outside scope looks broken, log it in `docs/PROGRESS.md` under "Out-of-scope findings" and move on.
+10. **Never run destructive commands** (`alembic downgrade`, `DROP`, `TRUNCATE`, reset scripts) against `DATABASE_URL`. Use only `TEST_DATABASE_URL` or a throwaway DB. Always print the target DB name (never credentials) before any migration command.
+    - This is a lesson from a real incident (see `docs/PROGRESS.md`, M0 audit): a manual `alembic downgrade base && alembic upgrade head` verification step was run without `ALEMBIC_DATABASE_URL` set and silently wiped the local dev database.
+    - Code guard: `app/core/db_safety.py` (`refuse_if_main_db`) refuses to proceed whenever a test or migration-check script's target database name equals `DATABASE_URL`'s database name. It is wired into `tests/conftest.py` (session-start guard) and `scripts/verify_migration_cycle.py` (the safe replacement for ad hoc downgrade/upgrade verification). Covered by `tests/test_db_safety_guard.py`.
 
 ---
 

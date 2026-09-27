@@ -18,11 +18,15 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.core.config import settings
 from app.core.db import build_connect_args
+from app.core.db_safety import db_name
 from app.models import Base
 
 config = context.config
 
 url = os.environ.get("ALEMBIC_DATABASE_URL") or settings.DATABASE_URL
+# Non-negotiable rule §2.10: always show which DB a migration command will
+# touch (name only, never credentials) before it runs.
+print(f"[alembic] target database: {db_name(url) or '(none)'}")
 # configparser treats '%' as interpolation syntax (URL-encoded passwords
 # contain %40 etc.) — escape per the Alembic cookbook.
 config.set_main_option("sqlalchemy.url", url.replace("%", "%%"))

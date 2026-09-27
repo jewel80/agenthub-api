@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from alembic import command
 from app.core.config import settings
 from app.core.db import build_connect_args, get_db
+from app.core.db_safety import MainDatabaseGuardError, refuse_if_main_db
 from app.core.deps import llm_provider
 from app.main import app
 from app.models.agent import Agent
@@ -34,15 +35,26 @@ TEST_DB_URL = os.environ.get("TEST_DATABASE_URL") or settings.TEST_DATABASE_URL
 _ALL_TABLES = ("messages", "users", "agents")
 
 
-def _require_test_db() -> None:
-    if not TEST_DB_URL.startswith("postgresql+asyncpg://"):
-        pytest.exit(
+def _test_db_error(test_db_url: str, main_db_url: str) -> str | None:
+    """Pure check (no pytest.exit) so it can be unit-tested directly."""
+    if not test_db_url.startswith("postgresql+asyncpg://"):
+        return (
             "TEST_DATABASE_URL must point at a disposable PostgreSQL database\n"
             "(postgresql+asyncpg://user:pass@host:port/dbname).\n"
             "Tests TRUNCATE tables — never point this at your main database.\n"
-            "Add it to .env or the environment before running pytest.",
-            returncode=3,
+            "Add it to .env or the environment before running pytest."
         )
+    try:
+        refuse_if_main_db(test_db_url, main_db_url, label="pytest")
+    except MainDatabaseGuardError as exc:
+        return str(exc)
+    return None
+
+
+def _require_test_db() -> None:
+    error = _test_db_error(TEST_DB_URL, settings.DATABASE_URL)
+    if error:
+        pytest.exit(error, returncode=3)
 
 
 @pytest.fixture(scope="session", autouse=True)
