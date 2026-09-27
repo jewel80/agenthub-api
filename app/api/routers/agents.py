@@ -13,7 +13,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_db
+from app.core.db import get_read_db
 from app.repositories import agent_repo
 from app.schemas.agent import AgentListItem, AgentOut, SubAgentOut
 from app.services import cache
@@ -39,7 +39,7 @@ def _catalog_headers(payload_json: str) -> tuple[str, dict[str, str]]:
 async def list_agents(
     request: Request,
     response: Response,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_read_db),
     industry: str | None = Query(None, description="Filter by exact industry."),
     q: str | None = Query(None, description="Search profession/industry."),
     featured: bool | None = Query(None, description="Only featured agents."),
@@ -86,7 +86,10 @@ async def list_agents(
 
 @router.get("/agents/{slug}", response_model=AgentOut, summary="Get one agent")
 async def get_agent(
-    slug: str, request: Request, response: Response, db: AsyncSession = Depends(get_db)
+    slug: str,
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_read_db),
 ):
     async def _load() -> AgentOut | None:
         # Unknown and deactivated agents are both "not found" (fix-doc F4);
@@ -133,7 +136,7 @@ async def get_agent(
 
 @router.get("/industries", response_model=list[str], summary="List industries")
 async def list_industries(
-    request: Request, response: Response, db: AsyncSession = Depends(get_db)
+    request: Request, response: Response, db: AsyncSession = Depends(get_read_db)
 ):
     async def _load() -> list[str]:
         return list(await agent_repo.list_industries(db))

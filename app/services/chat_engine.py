@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.core.db import mark_read_your_writes
 from app.core.deps import require_agent_scope
 from app.models.agent import Agent
 from app.models.user import User
@@ -141,6 +142,7 @@ async def run_turn(
         content=message,
     )
     await db.commit()
+    await mark_read_your_writes(user.id)
 
     # 2. load scoped history (includes the turn just persisted); pair_safe
     #    drops a leading assistant turn so the LLM context opens with `user`
@@ -190,6 +192,7 @@ async def run_turn(
         content=result.text,
     )
     await db.commit()
+    await mark_read_your_writes(user.id)
     await get_token_quota().record(
         str(user.id),
         result.usage.input_tokens + result.usage.output_tokens,
@@ -299,6 +302,7 @@ async def prepare_stream_turn(
         content=message,
     )
     await db.commit()
+    await mark_read_your_writes(user.id)
 
     history = await message_repo.get_recent_history(
         db,
@@ -445,6 +449,7 @@ async def _persist_streamed_turn(
         )
         session.add(msg)
         await session.commit()
+    await mark_read_your_writes(prepared.user.id)
 
     if usage is not None:
         await get_token_quota().record(

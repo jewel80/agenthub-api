@@ -59,6 +59,10 @@ a `postgres:16` service container automatically.
 | `DB_SSL_MODE` | no | `require` | `disable` for local dev without SSL |
 | `DB_USE_PGBOUNCER` | no | `false` | `true` behind a transaction-mode pooler |
 | `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` / `DB_POOL_TIMEOUT` | no | `10` / `5` / `10` | Connection pool tuning |
+| `DATABASE_READ_URL` | no | — | Optional read replica (scale §1); empty/disabled → reads use a read-only session against the primary |
+| `DB_READ_REPLICA_ENABLED` | no | `false` | Shipped disabled — flip on once a real replica exists |
+| `DB_REPLICA_MAX_LAG_SECONDS` | no | `2` | Replica considered unhealthy above this lag; reads fail over to the primary |
+| `READ_YOUR_WRITES_WINDOW_SECONDS` | no | `5` | How long a user's reads stick to the writer after they write (needs `REDIS_URL` once a replica is enabled) |
 | `JWT_SECRET` | yes (non-dev) | dev placeholder | ≥ 32 chars, not the dev default; generate: `python -c "import secrets;print(secrets.token_urlsafe(48))"` |
 | `JWT_ALG` | no | `HS256` | |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | no | `10080` (7 days) | |
@@ -113,6 +117,8 @@ a `postgres:16` service container automatically.
 **How to verify Redis-backed rate limiting/quota locally:** start Redis (`docker compose -f docker-compose.dev.yml up -d`), set `REDIS_URL=redis://127.0.0.1:6380/0` (use `127.0.0.1`, not `localhost` — see `.env.example`), then hit `/agents/{slug}/chat` past `RATE_LIMIT_PER_MIN` or `DAILY_TOKEN_QUOTA_DEFAULT` — expect `429` with `Retry-After` and `X-RateLimit-*` headers. Stop Redis and repeat: the same limits still apply (in-process fallback), confirming a Redis outage never becomes an API outage. See [`docs/runbooks/redis-degradation.md`](docs/runbooks/redis-degradation.md).
 
 **How to verify the catalog cache locally:** `curl -i http://localhost:8000/agents` → note the `ETag`; repeat with `-H "If-None-Match: <etag>"` → `304 Not Modified`. Re-run `python -m app.pipeline.seed_agents` after editing the CSV and the very next `GET /agents` reflects the change (cache invalidated) with a new `ETag`. An authenticated endpoint (e.g. `GET /me`) always answers `Cache-Control: private, no-store`.
+
+**How to verify the read/write split locally:** the catalog (`/agents`, `/agents/{slug}`, `/industries`) and `GET history` now read via a read-only DB session (`app/core/db.py::get_read_db`) — with `DATABASE_READ_URL` unset (the shipped default), this targets the primary but still runs `SET TRANSACTION READ ONLY`, so those endpoints behave exactly as before. To see the enforcement itself: `psql` won't help (it's per-session), but `pytest tests/test_read_write_split.py -k reader_session_rejects` shows a write through that session raising a Postgres read-only error. Read-your-writes only matters once `DB_READ_REPLICA_ENABLED=true` and `DATABASE_READ_URL` point at a real streaming replica.
 
 ---
 

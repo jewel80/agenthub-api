@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     # Separate throwaway DB for the test suite (its tables get truncated).
     TEST_DATABASE_URL: str = ""
 
+    # --- Read/write session split (scale §1) ---
+    # Empty/disabled => the reader targets DATABASE_URL too (same behavior,
+    # just via a read-only session — see app/core/db.py).
+    DATABASE_READ_URL: str = ""
+    DB_READ_REPLICA_ENABLED: bool = False
+    DB_REPLICA_MAX_LAG_SECONDS: int = 2
+    READ_YOUR_WRITES_WINDOW_SECONDS: int = 5
+
     # --- Connection pool / SSL ---
     DB_POOL_SIZE: int = 10
     DB_MAX_OVERFLOW: int = 5
@@ -107,7 +115,7 @@ class Settings(BaseSettings):
                 "DATABASE_URL must start with postgresql+asyncpg:// "
                 "(SQLite is not supported)"
             )
-        for name in ("DATABASE_URL", "TEST_DATABASE_URL"):
+        for name in ("DATABASE_URL", "TEST_DATABASE_URL", "DATABASE_READ_URL"):
             url = getattr(self, name)
             if not url:
                 continue
@@ -128,6 +136,12 @@ class Settings(BaseSettings):
         ):
             raise ValueError(
                 "TEST_DATABASE_URL must start with postgresql+asyncpg://"
+            )
+        if self.DATABASE_READ_URL and not self.DATABASE_READ_URL.startswith(
+            "postgresql+asyncpg://"
+        ):
+            raise ValueError(
+                "DATABASE_READ_URL must start with postgresql+asyncpg://"
             )
         if self.DB_SSL_MODE not in {"require", "disable"}:
             raise ValueError("DB_SSL_MODE must be 'require' or 'disable'")

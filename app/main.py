@@ -45,14 +45,21 @@ async def _lifespan(_app: FastAPI):
     # Cross-instance L1 cache invalidation (scale-doc §2.3.10); a no-op loop
     # when Redis isn't configured/reachable, never a startup failure.
     listener_task = asyncio.create_task(cache_service.run_invalidation_listener())
+    # Replica lag guard (scale-doc §1.2.6); returns immediately (no-op) when
+    # no replica is configured — the default here.
+    lag_guard_task = asyncio.create_task(core_db.run_replica_lag_guard())
     yield
     # Graceful shutdown (roadmap §7): in-flight requests finish first
     # (Starlette awaits them before this runs), then pools close.
     listener_task.cancel()
+    lag_guard_task.cancel()
     with suppress(asyncio.CancelledError):
         await listener_task
+    with suppress(asyncio.CancelledError):
+        await lag_guard_task
     await redis_mod.close()
     await core_db.engine.dispose()
+    await core_db.reader_engine.dispose()
 
 
 def create_app() -> FastAPI:

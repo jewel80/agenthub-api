@@ -243,7 +243,8 @@ STORAGE_SECRET_ACCESS_KEY=<provided separately>
 
 ## 11. Definition of Done
 
-- [ ] Writer/reader sessions in place; reader is read-only; read-your-writes and the lag guard work; replica off = identical behavior
+- [x] Writer/reader sessions in place; reader is read-only; read-your-writes and the lag guard work; replica off = identical behavior
+      — Implemented: this session — `app/core/db.py` (`get_read_db`, `get_read_db_for_user`, `read_your_writes_active`/`mark_read_your_writes`, `run_replica_lag_guard`), `tests/test_read_write_split.py`. Replica ships disabled (both URLs effectively primary) per §10 step 2; lag guard is a no-op loop until one is configured
 - [x] `CacheService` is the only cache entry point; versioned keys, jitter, stampede lock, SWR, negative cache, L1 + pub/sub invalidation
       — Implemented: this session — `app/services/cache.py`, `tests/test_cache_service.py` (hit/miss/invalidate, negative caching, 50-concurrent stampede → 1 load, SWR verified via a fakeredis smoke check — see `docs/PROGRESS.md`)
 - [x] Redis outage → API still serves correct data (tested)

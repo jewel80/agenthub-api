@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import AsyncIterator
 
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.core import db as core_db
 from app.core.db import AsyncSessionLocal, get_db
 from app.core.security import decode_access_token
 from app.models.user import User
@@ -75,6 +77,29 @@ async def get_current_user(
     if token_agent_id is not None and str(user.agent_id) != str(token_agent_id):
         raise credentials_exc
     return user
+
+
+async def get_read_db_for_user(
+    user: User = Depends(get_current_user),
+) -> AsyncIterator[AsyncSession]:
+    """Read-only session with read-your-writes (scale-doc §1.2.5): if `user`
+    wrote recently, returns a writer session so they see their own write
+    immediately (e.g. history right after posting a chat turn); otherwise
+    the normal reader path (`app.core.db.get_read_db`).
+
+    Depending on `get_current_user` (rather than taking a raw user id)
+    means FastAPI resolves it once per request and the endpoint's own
+    `user` param and this session share that same resolution — no double
+    auth/DB lookup.
+    """
+    if await core_db.read_your_writes_active(user.id):
+        async with AsyncSessionLocal() as session:
+            yield session
+        return
+    # Delegate to get_read_db() for the normal path so the replica-health
+    # fail-over logic lives in exactly one place.
+    async for session in core_db.get_read_db():
+        yield session
 
 
 def require_agent_scope(current_user: User, agent_id: uuid.UUID) -> None:

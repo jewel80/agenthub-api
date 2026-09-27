@@ -1,8 +1,8 @@
 # AgentHub Progress
 
 ## Current milestone
-M3 — Scale doc "Now" items. §2 `CacheService` ✅ complete. Next: §1
-read/write split → §3 outbox → §5.1 `pg_trgm`.
+M3 — Scale doc "Now" items. §2 `CacheService` ✅ complete, §1 read/write
+split ✅ complete. Next: §3 outbox → §5.1 `pg_trgm`.
 
 ## How this was verified (M0 audit, 2026-09-25/26)
 
@@ -110,6 +110,12 @@ locally only because no local Redis is running (they run in CI now).
 | §2.4 | Cache invalidation trigger | ✅ verified | this session | — | `python -m app.pipeline.seed_agents` invalidates `catalog`/`agent`/`industries` once after all upserts (not per-row, to avoid version churn) |
 | §2.7 | Optional semantic LLM cache | 🕒 deferred | — | — | Off by default per spec; no FAQ-style agent exists in this catalog (all are professional-advisor personas) — no business trigger yet |
 | §2.8 | Tests: hit/miss/invalidate, stampede, Redis-down, L1 cross-instance | ✅ verified against real Redis | this session | `tests/test_cache_service.py` — all 6 pass live (initially 2 pass/4 skip — no local Redis then; re-run against real Redis once available, 0 skips now) | Initial dev-time verification used a temporary `fakeredis` smoke script (not committed) to catch bugs the skip-when-unreachable tests couldn't yet — the version-fallback bug above was caught this way. Once real Redis became reachable, a genuine test-isolation bug surfaced (see "Corrections" below) and was fixed |
+| §1.2.1/.2 | Two engines/session factories (`engine`/`AsyncSessionLocal` writer, `reader_engine`/`ReaderSessionLocal` reader) | ✅ verified | this session | `tests/test_read_write_split.py` | `app/core/db.py`; reader targets `DATABASE_READ_URL` only when `DB_READ_REPLICA_ENABLED` + set, else the primary |
+| §1.2.3 | Reader is read-only (`SET TRANSACTION READ ONLY` via `default_transaction_read_only=on`) | ✅ verified against the real test DB | this session | `test_reader_session_rejects_an_insert` | A misrouted write raises `DBAPIError` immediately; new runbook: `docs/runbooks/read-write-split.md` |
+| §1.2.4 | Routing table applied | ✅ verified | this session | `test_catalog_endpoint_reads_still_work_with_replica_disabled` + full suite | Catalog (`GET /agents`, `/agents/{slug}`, `/industries`) → `get_read_db`; `GET history` → `get_read_db_for_user` (read-your-writes aware); signup/login/chat writes → unchanged (`get_db`, the writer) |
+| §1.2.5 | Read-your-writes (Redis flag, TTL = `READ_YOUR_WRITES_WINDOW_SECONDS`; Redis down → writer) | ✅ verified against real Redis | this session | `test_read_your_writes_marks_and_expires`, `test_read_your_writes_fails_safe_when_redis_down`, `test_read_your_writes_moot_without_a_replica` | `mark_read_your_writes` called after both the user-turn and assistant-turn commits in both the non-streaming and streaming chat paths (`app/services/chat_engine.py`); a no-op while no replica is configured (nothing to protect against) |
+| §1.2.6 | Replica lag guard (checks every 5s, marks unhealthy above `DB_REPLICA_MAX_LAG_SECONDS` or on error) | ✅ implemented; ⛔ not exercised against a real replica (none exists in this environment) | this session | `test_unhealthy_replica_routes_to_primary` (sentinel-based routing-logic test) | `run_replica_lag_guard()` wired into `app/main.py` lifespan; a no-op loop when no replica is configured (the default) — flagged under Needs human action for real-replica validation |
+| §1.3 | "Replica disabled ⇒ every endpoint behaves exactly as before" | ✅ verified | this session | full suite (127 passed) + live smoke test | Catalog/history endpoints hit live via `uvicorn` (mock LLM) after the change: `/agents` 200, `/agents/{slug}` 200, chat write 200, history immediately shows both turns |
 
 ## Corrections (found once real Redis became reachable)
 
@@ -157,6 +163,25 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
    test a fresh UUID-suffixed namespace (`_fresh_namespace()`), which
    can't collide with any prior run's data, rather than trying to
    enumerate and delete every versioned key by hand.
+4. **Real bug in `app/core/redis.py`, found while building/re-verifying M3
+   §1's read-your-writes tests**: `_build_client()` used the same 0.2s
+   timeout for both `socket_timeout` (per-command latency, the thing
+   roadmap §5 / scale §2.3.12 actually mean by "timeout ≤ 200ms") and
+   `socket_connect_timeout` (establishing a brand-new TCP connection). The
+   cache's 50-concurrent-miss stampede test intermittently failed
+   (`calls` as high as 37, not 1) because establishing 50 simultaneous new
+   connections from a cold pool (this test's `live_redis` fixture closes
+   and recreates the client every test) occasionally took a task longer
+   than 200ms to connect — a real but *transient* condition, not an actual
+   Redis outage — which tripped the shared `_unavailable` circuit breaker
+   for every other concurrent task, making them all skip their stampede
+   poll-wait and redundantly call the loader. Confirmed with a standalone
+   repro script (10/10 clean before the fix would occasionally spike to
+   6-37 calls; 10/10 clean after) before touching production code. Fixed
+   by splitting the timeout: `socket_connect_timeout` is now 2.0s (room for
+   a connection-establishment burst), `socket_timeout` stays 0.2s (a single
+   slow command still can't stall a request). Re-ran the full suite 3x
+   clean (127 passed) plus the stampede test in isolation 8x after the fix.
 
 ## Decisions & assumptions (M3 §2)
 
@@ -182,6 +207,46 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   separate `:revalidate-lock` key) so a slow loader doesn't get triggered
   by every concurrent stale read of the same key, not just true cache
   misses.
+
+## Decisions & assumptions (M3 §1)
+
+- **`get_db` is the doc's `get_write_db()`, kept under its existing name.**
+  Renaming it would touch every write-path call site (auth.py, chat.py) for
+  no functional benefit and risks an unrelated-looking diff across files
+  outside this section's scope. Documented as the mapping in
+  `app/core/db.py`'s module docstring.
+- **Two engines exist even with the replica disabled.** The reader engine
+  targets the *same* URL as the writer in that case, so it's a second
+  connection pool to one database — accepted per the scale doc's own
+  wording ("the code path stays the same; only the target changes") and
+  because it's how the read-only enforcement gets tested now, before any
+  real replica exists.
+- **Read-your-writes is gated on `_replica_configured`, not just on
+  Redis being reachable.** Without a replica, "the reader" already *is*
+  the primary, so there is nothing to protect against — always marking/
+  checking the flag would just add Redis round trips for zero benefit.
+  This also means `READ_YOUR_WRITES_WINDOW_SECONDS`/`REDIS_URL` are inert
+  until a replica is actually turned on; documented in the runbook.
+- **`mark_read_your_writes` is called after *both* the user-turn and the
+  assistant-turn commits** in every chat path (non-streaming and
+  streaming), not just once — a client could plausibly fetch history in
+  the gap between the two writes, and the window is only refreshed while
+  a replica is actually configured, so the extra Redis call is free in the
+  shipped (replica-disabled) default.
+- **Fail-safe direction for read-your-writes when Redis can't be checked
+  is "assume they wrote recently"** (route to the writer), not "assume they
+  didn't" — mirrors the CacheService's own principle of failing toward
+  correctness over the read-scaling optimization. Note the ordering
+  subtlety this required: `redis.call()` returns `None` for both "key
+  absent" and "Redis errored", so `is_unavailable()` must be checked
+  *after* the call attempt (reflecting whether that specific call just
+  failed), not before — checking it before would use its state as of the
+  *previous* call, which the read-your-writes fail-safe test caught.
+- **The replica lag guard (§1.2.6) is implemented but not exercised
+  against a real replica** — none exists in this environment. It's a
+  no-op loop while no replica is configured (the default), so this doesn't
+  block anything; flagged under Needs human action for whoever turns on a
+  real replica.
 
 ## Out-of-scope findings
 
@@ -240,6 +305,14 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   wired up — see the M3 §2 Decisions above. Needs a real invalidation
   trigger (a user-update/deactivate endpoint, a live agent-config-edit
   endpoint) before it's worth adding; neither exists yet.
+- 📄 **Replica lag guard (scale-doc §1.2.6) untested against a real
+  replica** — this environment has no Postgres streaming replica to point
+  `DATABASE_READ_URL` at. The guard and the unhealthy→primary fail-over are
+  covered by a routing-logic unit test (sentinels), not an integration test
+  against real replication lag. Before enabling `DB_READ_REPLICA_ENABLED`
+  in any real deployment: provision the replica, point `DATABASE_READ_URL`
+  at it, and re-verify `run_replica_lag_guard()` against real lag (e.g. by
+  briefly pausing replication) rather than trusting the unit test alone.
 - 📄 Everything under fix-doc §8 / roadmap "What I cannot do in code":
   managed Postgres failover, PgBouncer deployment, CDN/WAF, pen test, DR
   restore drill, secret-manager rotation, production load test, staging
@@ -293,5 +366,18 @@ real, instead of the skip-when-unreachable path, surfaced three real issues
   endpoints with HTTP `ETag`/`304`/`Cache-Control`. See the doc #3 audit
   table above for the full per-item breakdown. Re-verified against real
   Redis once it became reachable this session (see "Corrections" above) —
-  full suite now 120 passed, 0 skipped. Next: §1 read/write split → §3
-  outbox → §5.1 `pg_trgm`.
+  full suite now 120 passed, 0 skipped.
+  **§1 Read/write session split — ✅ complete this session**: two
+  engines/session factories (`get_db` writer, `get_read_db` reader);
+  reader enforces `SET TRANSACTION READ ONLY` at the Postgres session
+  level (misrouted writes fail loudly — proven against the real test DB);
+  routing table applied (catalog + history → reader, signup/login/chat →
+  writer unchanged); read-your-writes via Redis (`get_read_db_for_user`,
+  wired into the history endpoint); replica lag guard implemented and
+  wired into the app lifespan (no-op while disabled, the shipped default).
+  While re-verifying this against real Redis, found and fixed a real bug
+  in `app/core/redis.py` (connect-timeout too tight for a 50-connection
+  burst — see "Corrections" above). Full suite: 127 passed, 0 skipped,
+  reproduced clean 3x in a row. Live-verified end to end (mock LLM):
+  catalog reads, a chat write, and history showing both turns immediately
+  after. Next: §3 outbox → §5.1 `pg_trgm`.

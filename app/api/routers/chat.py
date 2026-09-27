@@ -22,6 +22,7 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import (
     get_current_user,
+    get_read_db_for_user,
     llm_provider,
     rate_limiter,
     stream_db_factory,
@@ -104,7 +105,7 @@ async def history(
     agent_slug: str,
     sub_agent_slug: str | None = None,
     limit: int = Query(50, ge=1, le=100, description="Turns to return (1-100)."),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_read_db_for_user),
     user: User = Depends(get_current_user),
 ):
     main, target = await chat_engine.resolve_target(

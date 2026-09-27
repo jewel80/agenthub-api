@@ -18,8 +18,18 @@ from app.core.config import settings
 
 logger = logging.getLogger("agenthub.redis")
 
-# Fail fast: a slow Redis must not add latency to every request.
-_REDIS_TIMEOUT_SECONDS = 0.2
+# Fail fast: a slow Redis must not add latency to a request (roadmap §5 /
+# scale-doc §2.3.12 — "timeout <= 200ms" is about a single command's
+# latency once connected). Establishing a brand-new connection gets more
+# room: a burst of many concurrent first-time callers (e.g. the cache
+# stampede guard's 50-concurrent-miss case) can legitimately take longer
+# than 200ms to all complete their TCP handshake even against a healthy,
+# fast Redis — a tighter shared deadline here caused exactly that (see
+# docs/PROGRESS.md M3 §1 "Corrections"): a few slow-to-connect callers
+# tripped the circuit breaker for everyone, well before Redis was actually
+# unavailable.
+_REDIS_COMMAND_TIMEOUT_SECONDS = 0.2
+_REDIS_CONNECT_TIMEOUT_SECONDS = 2.0
 
 _client: Redis | None = None
 _unavailable = False
@@ -31,8 +41,8 @@ def _build_client() -> Redis | None:
     return from_url(
         settings.REDIS_URL,
         decode_responses=True,
-        socket_timeout=_REDIS_TIMEOUT_SECONDS,
-        socket_connect_timeout=_REDIS_TIMEOUT_SECONDS,
+        socket_timeout=_REDIS_COMMAND_TIMEOUT_SECONDS,
+        socket_connect_timeout=_REDIS_CONNECT_TIMEOUT_SECONDS,
         health_check_interval=30,
     )
 

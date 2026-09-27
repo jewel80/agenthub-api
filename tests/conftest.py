@@ -20,9 +20,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from alembic import command
 from app.core.config import settings
-from app.core.db import build_connect_args, get_db
+from app.core.db import build_connect_args, get_db, get_read_db
 from app.core.db_safety import MainDatabaseGuardError, refuse_if_main_db
-from app.core.deps import llm_provider
+from app.core.deps import get_read_db_for_user, llm_provider
 from app.main import app
 from app.models.agent import Agent
 from app.services.llm.mock_provider import MockProvider
@@ -96,6 +96,12 @@ async def client(session_factory):
             yield session
 
     app.dependency_overrides[get_db] = override_get_db
+    # Reader dependencies too (scale-doc §1): tests have no real replica, and
+    # the module-global reader_engine is bound to DATABASE_URL — overriding
+    # it here points reads at the same per-test session as writes, and
+    # avoids reusing a cross-test/cross-event-loop engine.
+    app.dependency_overrides[get_read_db] = override_get_db
+    app.dependency_overrides[get_read_db_for_user] = override_get_db
     # Always inject the deterministic mock LLM in tests (no API key needed).
     app.dependency_overrides[llm_provider] = lambda: MockProvider()
     transport = ASGITransport(app=app)
